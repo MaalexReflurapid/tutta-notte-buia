@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutta Notte Buia - MAalex</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        /* Background effect with fade-in animation */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background-color: black;
+            opacity: 0;
+            animation: fadeIn 3s ease-in forwards;
+        }
+
+        body {
+            background-color: black;
+            margin: 0;
+            margin-top: 10vh;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            color: white;
+        }
+
+        @font-face {
+            font-family: "Monospaced";
+            font-weight: 10%;
+            src: url(AtkinsonHyperlegibleMono-ExtraLight.ttf);
+        }
+
+        h1 {
+            font-family: "Monospaced";
+            opacity: 0;
+            font-size: 150%;
+            animation: fadeInUp 3s ease-out forwards;
+        }
+
+        p {
+            font-family: "Monospaced";
+            opacity: 0;
+            animation: fadeInUp 3s ease-out forwards;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            margin: 5px;
+            border: 1px solid white;
+            background: black;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 18px;
+            margin: none;
+            border: none;
+            border-bottom: 1px solid white;
+            background: black;
+            color: white;
+            cursor: pointer;
+            
+        }
+
+        input:focus {
+            outline:none;
+        }
+
+
+
+        /* Sections */
+        #infoScreen, #formSection, #canvasSection {
+            transition: opacity 3s ease-in-out;
+        }
+
+        #formSection, #canvasSection {
+            display: none;
+        }
+
+        /* Fade-in and fade-out animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in { opacity: 0; animation: fadeIn 3s ease-in forwards; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .fade-out { animation: fadeOut 3s ease-out forwards; }
+
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        #rotateMessage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 150%;
+            z-index: 1000;
+        }
+
+        /* Canvas styles */
+        #canvas_div {
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 90vw;
+            height: 50vh;
+        }
+
+        canvas {
+            background-color: black;
+            width: 100%;
+            height: 100%;
+            touch-action: none; /* Prevents scrolling while drawing */
+        }
+    </style>
+</head>
+<body onload="getUserInfo()">
+
+    <!-- Particle effect container -->
+    <div id="particles-js"></div>
+    <div id="rotateMessage"><p>Please rotate your device to continue</p></div>
+
+    <div id="infoScreen">
+        <h1>Welcome!</h1>
+        <p id="browserLanguage">🌍 Detecting browser language...</p>
+        <p id="timeZone">🕒 Detecting time zone...</p>
+        <p id="userLocation">📍 Detecting location...</p>
+        <p id="userIP">💻 Detecting IP address...</p>
+        <button onclick="proceedToForm()">Continue</button>
+    </div>
+
+    <!-- Name, Surname, Email Form -->
+    <div id="formSection">
+        <form id="userForm">
+        <h1>Your Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required> </h1> 
+        <h1>Your Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required> </h1> 
+        <h1>Your Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1> 
+        </form>
+        <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
+    </div>
+
+    <!-- Drawing Section -->
+    <div id="canvasSection">
+        <h1 id="drawTitle" class="fade-in">Draw something here:</h1>
+        <div id="canvas_div">
+            <canvas id="canvas" class="fade-in"></canvas> 
+            <button onclick="clearCanvas();" class="fade-in">Clear</button>
+            <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Submit Drawing</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Particles.js
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 200, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 2, "random": true },
+                "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true, "straight": false, "out_mode": "out" },
+                "line_linked": { "enable": false }
+            },
+            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } } },
+            "retina_detect": true
+        });
+    
+        const WEBSOCKET_URL = "ws://127.0.0.1:9000"; // Modifica con il tuo server WebSocket
+
+        function checkOrientation() {
+            const rotateMessage = document.getElementById("rotateMessage");
+            if (window.innerHeight > window.innerWidth) {
+                rotateMessage.style.display = "flex"; // Show message in portrait mode
+            } else {
+                rotateMessage.style.display = "none"; // Hide message in landscape mode
+            }
+        }
+
+        // Run the check when the page loads and when the screen rotates
+        window.addEventListener("load", checkOrientation);
+        window.addEventListener("resize", checkOrientation);
+
+
+        function getUserInfo() {
+            document.getElementById("browserLanguage").innerHTML = `🌍 Browser Language: <b>${navigator.language}</b>`;
+            document.getElementById("timeZone").innerHTML = `🕒 Time Zone: <b>${Intl.DateTimeFormat().resolvedOptions().timeZone}</b>`;
+
+            fetch("https://api.ipregistry.co/?key=tryout")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("userLocation").innerHTML = 
+                        `📍 Approximate Location: <b>${data.location.city}, ${data.location.country.name}</b>`;
+                    document.getElementById("userIP").innerHTML =
+                        `💻 IP Address: <b>${data.ip}</b>`;
+                })
+                .catch(() => {
+                    document.getElementById("userLocation").innerHTML = "📍 Location unavailable.";
+                    document.getElementById("userIP").innerHTML = "💻 IP unavailable.";
+                });
+        }
+
+        function proceedToForm() {
+            document.getElementById("infoScreen").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("infoScreen").style.display = "none";
+                document.getElementById("formSection").style.display = "block";
+            }, 3000);
+        }
+
+        function validateForm() {
+            if (!document.getElementById("firstName").value.trim() || 
+                !document.getElementById("lastName").value.trim() || 
+                !document.getElementById("email").value.trim()) {
+                alert("All fields are required!");
+                return;
+            }
+            goToCanvas();
+        }
+        
+        function sendData() {
+            const firstName = document.getElementById("firstName").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            if (!firstName || !lastName || !email) {
+                alert("⚠️ Devi compilare tutti i campi!");
+                return;
+            }
+
+            const data = { 
+                nome: firstName, 
+                cognome: lastName, 
+                email: email 
+            };
+
+            const socket = new WebSocket(WEBSOCKET_URL);
+
+            socket.onopen = () => {
+                socket.send(JSON.stringify(data)); 
+                console.log("✅ Dati inviati:", data);
+                alert("✅ Dati inviati con successo!");
+                goToCanvas();  // Passa alla fase successiva (disegno)
+            };
+
+            socket.onerror = (error) => console.error("❌ Errore WebSocket:", error);
+        }
+
+        function goToCanvas() {
+            document.getElementById("formSection").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("formSection").style.display = "none";
+                document.getElementById("canvasSection").style.display = "block";
+                setupCanvas();
+            }, 3000);
+        }
+
+        function setupCanvas() {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const submitBtn = document.getElementById("submitDrawingBtn");
+
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+
+            let isDrawing = false;
+
+            function startDrawing(event) {
+                event.preventDefault();
+                isDrawing = true;
+                ctx.beginPath();
+                const { x, y } = getCoords(event);
+                ctx.moveTo(x, y);
+            }
+
+            function draw(event) {
+                event.preventDefault();
+                if (!isDrawing) return;
+
+                const { x, y } = getCoords(event);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 3;
+                ctx.lineCap = "round";
+                ctx.stroke();
+                submitBtn.disabled = false;
+            }
+
+            function stopDrawing(event) {
+                event.preventDefault();
+                isDrawing = false;
+                ctx.beginPath();
+            }
+
+            function getCoords(event) {
+                const rect = canvas.getBoundingClientRect();
+                const x = event.touches ? event.touches[0].clientX - rect.left : event.clientX - rect.left;
+                const y = event.touches ? event.touches[0].clientY - rect.top : event.clientY - rect.top;
+                return { x, y };
+            }
+
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+
+            canvas.addEventListener("touchstart", startDrawing, { passive: false });
+            canvas.addEventListener("touchmove", draw, { passive: false });
+            canvas.addEventListener("touchend", stopDrawing);
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById("submitDrawingBtn").disabled = true;
+        }
+
+        function submitDrawing() {
+            alert("🎨 Drawing submitted!");
+        }
+
+    </script>
+
+</body>
+</html>
