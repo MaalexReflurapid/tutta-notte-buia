@@ -189,7 +189,7 @@
             "retina_detect": true
         });
     
-        const WEBSOCKET_URL = "ws://127.0.0.1:9000"; // Modifica con il tuo server WebSocket
+        const WEBSOCKET_URL = "https://websocket-server-2lpf.onrender.com";  // Il nostro URL di Render
 
         function checkOrientation() {
             const rotateMessage = document.getElementById("rotateMessage");
@@ -223,6 +223,25 @@
                 });
         }
 
+        function keepWebSocketAlive() {
+            const socket = new WebSocket(WEBSOCKET_URL);
+        
+            socket.onopen = () => {
+                console.log("✅ Connessione WebSocket attiva - Ping ogni 5 minuti");
+                setInterval(() => {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({ ping: "keep-alive" }));
+                        console.log("🔄 Ping inviato per evitare lo spegnimento");
+                    }
+                }, 5 * 60 * 1000); // Ogni 5 minuti
+            };
+        
+            socket.onerror = (error) => console.error("❌ Errore WebSocket:", error);
+            socket.onclose = () => console.log("🔌 Connessione WebSocket chiusa");
+        }
+        
+        keepWebSocketAlive();
+        
         function proceedToForm() {
             document.getElementById("infoScreen").classList.add("fade-out");
             setTimeout(() => {
