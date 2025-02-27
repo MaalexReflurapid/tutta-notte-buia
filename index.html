@@ -142,8 +142,12 @@
 
     <!-- Particle effect container -->
     <div id="particles-js"></div>
-    <div id="rotateMessage"><p>Please rotate your device to continue</p></div>
 
+    <div id="rotateMessage">
+        <p>Please rotate your device to continue</p>
+    </div>
+
+    <!-- First Screen with User Info -->
     <div id="infoScreen">
         <h1>Welcome!</h1>
         <p id="browserLanguage">🌍 Detecting browser language...</p>
@@ -157,7 +161,9 @@
     <div id="formSection">
         <form id="userForm">
         <h1>Your Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required> </h1> 
+
         <h1>Your Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required> </h1> 
+
         <h1>Your Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1> 
         </form>
         <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
@@ -174,6 +180,7 @@
     </div>
 
     <script>
+
         // Initialize Particles.js
         particlesJS("particles-js", {
             "particles": {
@@ -188,8 +195,6 @@
             "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } } },
             "retina_detect": true
         });
-    
-        const WEBSOCKET_URL = "https://websocket-server-2lpf.onrender.com";  // Il nostro URL di Render
 
         function checkOrientation() {
             const rotateMessage = document.getElementById("rotateMessage");
@@ -223,25 +228,6 @@
                 });
         }
 
-        function keepWebSocketAlive() {
-            const socket = new WebSocket(WEBSOCKET_URL);
-        
-            socket.onopen = () => {
-                console.log("✅ Connessione WebSocket attiva - Ping ogni 5 minuti");
-                setInterval(() => {
-                    if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({ ping: "keep-alive" }));
-                        console.log("🔄 Ping inviato per evitare lo spegnimento");
-                    }
-                }, 5 * 60 * 1000); // Ogni 5 minuti
-            };
-        
-            socket.onerror = (error) => console.error("❌ Errore WebSocket:", error);
-            socket.onclose = () => console.log("🔌 Connessione WebSocket chiusa");
-        }
-        
-        keepWebSocketAlive();
-        
         function proceedToForm() {
             document.getElementById("infoScreen").classList.add("fade-out");
             setTimeout(() => {
@@ -258,34 +244,6 @@
                 return;
             }
             goToCanvas();
-        }
-        
-        function sendData() {
-            const firstName = document.getElementById("firstName").value.trim();
-            const lastName = document.getElementById("lastName").value.trim();
-            const email = document.getElementById("email").value.trim();
-
-            if (!firstName || !lastName || !email) {
-                alert("⚠️ Devi compilare tutti i campi!");
-                return;
-            }
-
-            const data = { 
-                nome: firstName, 
-                cognome: lastName, 
-                email: email 
-            };
-
-            const socket = new WebSocket(WEBSOCKET_URL);
-
-            socket.onopen = () => {
-                socket.send(JSON.stringify(data)); 
-                console.log("✅ Dati inviati:", data);
-                alert("✅ Dati inviati con successo!");
-                goToCanvas();  // Passa alla fase successiva (disegno)
-            };
-
-            socket.onerror = (error) => console.error("❌ Errore WebSocket:", error);
         }
 
         function goToCanvas() {
@@ -361,6 +319,51 @@
             alert("🎨 Drawing submitted!");
         }
 
+        // ✅ Configura il WebSocket
+        const ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
+    
+        ws.onopen = () => {
+            console.log("✅ WebSocket connesso!");
+        };
+    
+        ws.onerror = (error) => {
+            console.error("❌ Errore WebSocket:", error);
+        };
+    
+        ws.onmessage = (event) => {
+            console.log("📩 Messaggio ricevuto dal server:", event.data);
+        };
+    
+        ws.onclose = () => {
+            console.log("🔌 WebSocket disconnesso.");
+        };
+    
+        function validateForm() {
+            let firstName = document.getElementById("firstName").value.trim();
+            let lastName = document.getElementById("lastName").value.trim();
+            let email = document.getElementById("email").value.trim();
+    
+            if (!firstName || !lastName || !email) {
+                alert("All fields are required!");
+                return;
+            }
+    
+            // ✅ Invia i dati via WebSocket
+            const userData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email
+            };
+    
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(userData));
+                console.log("📤 Dati inviati:", userData);
+            } else {
+                console.error("❌ WebSocket non connesso. Riprova più tardi.");
+            }
+    
+            goToCanvas();
+        }
     </script>
 
 </body>
