@@ -180,7 +180,79 @@
     </div>
 
     <script>
+        // Configura gli orari per il ping
+        const START_HOUR = 8; // 8:00 AM
+        const END_HOUR = 16;  // 4:00 PM
+        
+        let ws;
+        let pingInterval;
+        
+        function connectWebSocket() {
+            ws = new WebSocket("wss://websocket-server-vfu2.onrender.com");
+        
+            ws.onopen = () => {
+                console.log("✅ WebSocket connesso!");
+        
+                // Inizia il ping solo se siamo dentro l'orario definito
+                startPinging();
+            };
+        
+            ws.onerror = (error) => {
+                console.error("❌ Errore WebSocket:", error);
+            };
+        
+            ws.onclose = () => {
+                console.log("🔌 WebSocket disconnesso.");
+                clearInterval(pingInterval); // Ferma il ping se la connessione si chiude
+                // Tentativo di riconnessione
+                setTimeout(connectWebSocket, 5000);  // Riprova ogni 5 secondi
+            };
+        }
+        
+        // Funzione per avviare il ping se siamo dentro l'orario
+        function startPinging() {
+            const currentHour = new Date().getHours();
+        
+            if (currentHour >= START_HOUR && currentHour < END_HOUR) {
+                console.log("🔄 Inizio ping...");
+                pingInterval = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ ping: "keep-alive" }));
+                        console.log("🔄 Ping inviato per mantenere attivo il server");
+                    }
+                }, 5 * 60 * 1000);  // Ping ogni 5 minuti durante l'orario di attività
+            } else {
+                console.log("🛑 Fuori orario, il ping è disabilitato.");
+            }
+        }
+        
+        // Funzione per controllare l'orario ogni ora e fermare il ping se siamo fuori orario
+        function checkPingSchedule() {
+            const currentHour = new Date().getHours();
+        
+            if (currentHour >= START_HOUR && currentHour < END_HOUR) {
+                if (!pingInterval) {
+                    // Se non è già attivo, avvia il ping
+                    startPinging();
+                }
+            } else {
+                if (pingInterval) {
+                    // Se siamo fuori orario, ferma il ping
+                    clearInterval(pingInterval);
+                    pingInterval = null;
+                    console.log("🛑 Ping fermato, fuori orario.");
+                }
+            }
+        }
+        
+        // Imposta il controllo dell'orario ogni 60 minuti
+        setInterval(checkPingSchedule, 60 * 60 * 1000);  // Controlla ogni ora
+        
+        // Connetti inizialmente
+        connectWebSocket();
 
+
+        
         // Initialize Particles.js
         particlesJS("particles-js", {
             "particles": {
