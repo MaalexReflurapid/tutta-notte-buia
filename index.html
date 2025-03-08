@@ -274,17 +274,20 @@
             }
 
             function draw(event) {
-                event.preventDefault();
-                if (!isDrawing) return;
+            event.preventDefault();
+            if (!isDrawing) return;
 
-                const { x, y } = getCoords(event);
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = "white";
-                ctx.lineWidth = 3;
-                ctx.lineCap = "round";
-                ctx.stroke();
-                submitBtn.disabled = false;
-            }
+            const { x, y } = getCoords(event);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 3;
+            ctx.lineCap = "round";
+            ctx.stroke();
+
+            // Enable "Submit" only if something is drawn
+            if (!submitBtn.disabled) return;
+            submitBtn.disabled = false;
+            }   
 
             function stopDrawing(event) {
                 event.preventDefault();
@@ -319,24 +322,24 @@
             alert("🎨 Drawing submitted!");
         }
 
-        // ✅ Configura il WebSocket
-        const ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
-    
-        ws.onopen = () => {
-            console.log("✅ WebSocket connesso!");
-        };
-    
-        ws.onerror = (error) => {
-            console.error("❌ Errore WebSocket:", error);
-        };
-    
-        ws.onmessage = (event) => {
-            console.log("📩 Messaggio ricevuto dal server:", event.data);
-        };
-    
+        function connectWebSocket() {
+        ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
+
+        ws.onopen = () => console.log("WebSocket connected!");
+
+        ws.onerror = (error) => console.error("WebSocket error:", error);
+
+        ws.onmessage = (event) => console.log("Message from server:", event.data);
+
         ws.onclose = () => {
-            console.log("🔌 WebSocket disconnesso.");
-        };
+            console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
+            setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // Initialize WebSocket connection
+        let ws;
+        connectWebSocket();
     
         function validateForm() {
             let firstName = document.getElementById("firstName").value.trim();
@@ -348,7 +351,7 @@
                 return;
             }
     
-            // ✅ Invia i dati via WebSocket
+            // Invia i dati via WebSocket
             const userData = {
                 firstName: firstName,
                 lastName: lastName,
@@ -359,7 +362,7 @@
                 ws.send(JSON.stringify(userData));
                 console.log("📤 Dati inviati:", userData);
             } else {
-                console.error("❌ WebSocket non connesso. Riprova più tardi.");
+                console.error("WebSocket non connesso. Riprova più tardi.");
             }
     
             goToCanvas();
