@@ -319,8 +319,27 @@
         }
 
         function submitDrawing() {
+            const canvas = document.getElementById("canvas");
+            // Ottieni l'immagine in formato base64
+            const dataURL = canvas.toDataURL("image/png");
+            
+            // Costruisci il payload includendo i dati della firma
+            const drawingData = {
+                type: "firma",
+                firma: dataURL
+            };
+        
+            // Invia il payload tramite WebSocket, se connesso
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(drawingData));
+                console.log("📤 Firma inviata:", drawingData);
+            } else {
+                console.error("WebSocket non connesso. Riprova più tardi.");
+            }
+            
             alert("🎨 Drawing submitted!");
         }
+
 
         function connectWebSocket() {
         ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
