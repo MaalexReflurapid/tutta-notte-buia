@@ -118,6 +118,18 @@
             z-index: 1000;
         }
 
+        #queueMessage {
+            position: fixed;
+            top: 20%;
+            width: 100%;
+            text-align: center;
+            background-color: black;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            z-index: 1000;
+        }
+
         /* Canvas styles */
         #canvas_div {
             text-align: center;
@@ -141,6 +153,12 @@
     <!-- Particle effect container -->
     <div id="particles-js"></div>
 
+    <!-- Queue Message Section -->
+    <div id="queueMessage" style="display: none;">
+        <h1 id="queueText"></h1>
+    </div>
+
+    <!-- Rotate Message Section -->
     <div id="rotateMessage">
         <p>Please rotate your device to continue</p>
     </div>
@@ -441,18 +459,43 @@
 
 
         function connectWebSocket() {
-        ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
+            ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
 
-        ws.onopen = () => console.log("WebSocket connected!");
+            ws.onopen = () => console.log("WebSocket connected!");
 
-        ws.onerror = (error) => console.error("WebSocket error:", error);
+            ws.onerror = (error) => console.error("WebSocket error:", error);
 
-        ws.onmessage = (event) => console.log("Message from server:", event.data);
+            ws.onmessage = (event) => {
+                const message = event.data;
 
-        ws.onclose = () => {
-            console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
-            setTimeout(connectWebSocket, 3000);
+                // Verifica se il messaggio riguarda la coda
+                if (message.startsWith("It's not your time yet")) {
+                    // Mostra il messaggio di coda
+                    const queueText = document.getElementById("queueText");
+                    queueText.innerText = message;
+                    const queueMessage = document.getElementById("queueMessage");
+                    queueMessage.style.display = "block";
+                    
+                    // Blocca l'interazione con il sito
+                    document.getElementById("infoScreen").style.display = "none";
+                    document.getElementById("formSection").style.display = "none";
+                    document.getElementById("questionSection").style.display = "none";
+                    document.getElementById("canvasSection").style.display = "none";
+                    document.getElementById("thankYouSection").style.display = "none";
+                } else if (message === "You are now connected.") {
+                    // Nasconde il messaggio di coda e ripristina il sito
+                    const queueMessage = document.getElementById("queueMessage");
+                    queueMessage.style.display = "none";
+                    proceedToForm();
+                }
+                
+                console.log("Message from server:", message);
             };
+
+            ws.onclose = () => {
+                console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
+                setTimeout(connectWebSocket, 3000);
+                };
         }
 
         let inactivityTimeout;
