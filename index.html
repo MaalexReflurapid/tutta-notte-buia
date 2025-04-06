@@ -79,14 +79,12 @@
             outline:none;
         }
 
-
-
         /* Sections */
-        #infoScreen, #formSection, #canvasSection {
+        #infoScreen, #formSection, #questionSection, #canvasSection, #thankYouSection {
             transition: opacity 3s ease-in-out;
         }
 
-        #formSection, #canvasSection {
+        #formSection, #questionSection, #canvasSection, #thankYouSection {
             display: none;
         }
 
@@ -169,6 +167,13 @@
         <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
     </div>
 
+    <!-- Question Section -->
+    <div id="questionSection" style="display: none;">
+        <h1>Do you want to be forgotten?</h1>
+        <button onclick="answerYes()">Yes</button>
+        <button onclick="answerNo()">No</button>
+    </div>
+
     <!-- Drawing Section -->
     <div id="canvasSection">
         <h1 id="drawTitle" class="fade-in">Draw something here:</h1>
@@ -177,6 +182,12 @@
             <button onclick="clearCanvas();" class="fade-in">Clear</button>
             <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Submit Drawing</button>
         </div>
+    </div>
+
+    <!-- Thank You Section -->
+    <div id="thankYouSection" style="display: none;">
+        <h1>Thank you for taking part to Tutta Notte Buia</h1>
+        <p> Your contribution is greatly appreciated. </p>
     </div>
 
     <script>
@@ -236,14 +247,72 @@
             }, 3000);
         }
 
+         // Initialize WebSocket connection
+        let ws;
+        connectWebSocket();
+    
         function validateForm() {
-            if (!document.getElementById("firstName").value.trim() || 
-                !document.getElementById("lastName").value.trim() || 
-                !document.getElementById("email").value.trim()) {
+            let firstName = document.getElementById("firstName").value.trim();
+            let lastName = document.getElementById("lastName").value.trim();
+            let email = document.getElementById("email").value.trim();
+    
+            if (!firstName || !lastName || !email) {
                 alert("All fields are required!");
                 return;
             }
-            goToCanvas();
+
+            // Verifica il formato dell'email
+            if (!isValidEmail(email)) {
+                alert("Please enter a valid email address!");
+                return;
+            }
+    
+            // Invia i dati via WebSocket
+            const userData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email
+            };
+    
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(userData));
+                console.log("📤 Dati inviati:", userData);
+            } else {
+                console.error("WebSocket non connesso. Riprova più tardi.");
+            }
+    
+            goToQuestion();
+            
+        }
+
+        function isValidEmail(email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
+        }
+
+        function goToQuestion() {
+            document.getElementById("formSection").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("formSection").style.display = "none";
+                document.getElementById("questionSection").style.display = "block";
+            }, 3000);
+        }
+
+        function answerYes() {
+            document.getElementById("questionSection").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("questionSection").style.display = "none";
+                document.getElementById("canvasSection").style.display = "block";
+                setupCanvas();
+            }, 3000);
+        }
+
+        function answerNo() {
+            document.getElementById("questionSection").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("questionSection").style.display = "none";
+                showThankYouPage();
+            }, 3000);
         }
 
         function goToCanvas() {
@@ -337,7 +406,21 @@
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
             
-            alert("🎨 Drawing submitted!");
+            showThankYouPage();
+        
+        }
+
+        function showThankYouPage() {
+            document.getElementById("canvasSection").classList.add("fade-out");
+            setTimeout(() => {
+                document.getElementById("canvasSection").style.display = "none";
+                document.getElementById("thankYouSection").style.display = "block";
+                
+                // Imposta il reindirizzamento dopo 30 secondi
+                setTimeout(() => {
+                    window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Sostituisci con il link desiderato
+                }, 30000); // 30000 ms = 30 secondi
+            }, 3000);
         }
 
 
@@ -354,38 +437,6 @@
             console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
             setTimeout(connectWebSocket, 3000);
             };
-        }
-
-        // Initialize WebSocket connection
-        let ws;
-        connectWebSocket();
-    
-        function validateForm() {
-            let firstName = document.getElementById("firstName").value.trim();
-            let lastName = document.getElementById("lastName").value.trim();
-            let email = document.getElementById("email").value.trim();
-    
-            if (!firstName || !lastName || !email) {
-                alert("All fields are required!");
-                return;
-            }
-    
-            // Invia i dati via WebSocket
-            const userData = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email
-            };
-    
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(userData));
-                console.log("📤 Dati inviati:", userData);
-            } else {
-                console.error("WebSocket non connesso. Riprova più tardi.");
-            }
-    
-            goToCanvas();
-            
         }
 
         let inactivityTimeout;
