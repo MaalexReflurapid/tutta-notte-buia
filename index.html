@@ -311,8 +311,24 @@
             document.getElementById("questionSection").classList.add("fade-out");
             setTimeout(() => {
                 document.getElementById("questionSection").style.display = "none";
+                // Invia il messaggio di reset data research
+                sendClearMessage();
+
                 showThankYouPage();
             }, 3000);
+        }
+
+        function sendClearMessage() {
+            const message = {
+                action: "clear_variable"
+            };
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+                console.log("📤 Messaggio di pulizia inviato:", message);
+            } else {
+                console.error("WebSocket non connesso. Riprova più tardi.");
+            }
         }
 
         function goToCanvas() {
