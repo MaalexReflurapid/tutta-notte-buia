@@ -118,6 +118,22 @@
             z-index: 1000;
         }
 
+        #queueMessage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 150%;
+            z-index: 1000;
+        }
+
         /* Canvas styles */
         #canvas_div {
             text-align: center;
@@ -141,6 +157,10 @@
     <!-- Particle effect container -->
     <div id="particles-js"></div>
 
+    <div id="queueMessage">
+        <p>It's not your time yet...</p>
+    </div>
+    
     <div id="rotateMessage">
         <p>Please rotate your device to continue</p>
     </div>
@@ -451,7 +471,16 @@
 
         ws.onerror = (error) => console.error("WebSocket error:", error);
 
-        ws.onmessage = (event) => console.log("Message from server:", event.data);
+        ws.onmessage = (event) => {
+            console.log("Message from server:", event.data);
+        
+            if (event.data === "queued") {
+                document.getElementById("queueMessage").style.display = "block";
+            } else if (event.data === "connected") {
+                document.getElementById("queueMessage").style.display = "none";
+                // Ora puoi procedere normalmente
+            }
+        };
 
         ws.onclose = () => {
             console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
