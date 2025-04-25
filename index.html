@@ -443,7 +443,11 @@
         function connectWebSocket() {
         ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
 
-        ws.onopen = () => console.log("WebSocket connected!");
+        ws.onopen = () => {
+            console.log("WebSocket connected!");
+            // Handshake iniziale
+            ws.send(JSON.stringify({ role: "web_user" }));
+        };
 
         ws.onerror = (error) => console.error("WebSocket error:", error);
 
