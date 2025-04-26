@@ -6,18 +6,6 @@
     <title>Tutta Notte Buia - MAalex</title>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* Background effect with fade-in animation */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            background-color: black;
-            opacity: 0;
-            animation: fadeIn 3s ease-in forwards;
-        }
 
         body {
             background-color: black;
@@ -84,7 +72,7 @@
             transition: opacity 3s ease-in-out;
         }
 
-        #formSection, #questionSection, #canvasSection, #thankYouSection {
+        #infoScreen, #formSection, #questionSection, #canvasSection, #thankYouSection {
             display: none;
         }
 
@@ -102,6 +90,20 @@
 
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
+        /* Background effect with fade-in animation */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background-color: black;
+            opacity: 0;
+            animation: fadeIn 3s ease-in forwards;
+            display: block; /* Mostra particellare subito */
+        }
+        
         #rotateMessage {
             position: fixed;
             top: 0;
@@ -119,6 +121,7 @@
         }
 
         #queueMessage {
+            display: none; /* Hidden by default */
             position: fixed;
             top: 0;
             left: 0;
@@ -126,7 +129,6 @@
             height: 100%;
             background: black;
             color: white;
-            display: none; /* Hidden by default */
             justify-content: center;
             align-items: center;
             text-align: center;
