@@ -454,6 +454,7 @@
                 
                 // Imposta il reindirizzamento dopo 30 secondi
                 setTimeout(() => {
+                    sendClearMessage()
                     window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Sostituisci con il link desiderato
                 }, 30000); // 30000 ms = 30 secondi
             }, 3000);
@@ -501,6 +502,8 @@
         document.addEventListener("keydown", resetInactivityTimer);
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
+        window.addEventListener("beforeunload", sendClearMessage);
+        window.addEventListener("unload", sendClearMessage);
         
         // Initialize the timer when the page loads
         resetInactivityTimer();
