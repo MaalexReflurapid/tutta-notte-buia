@@ -478,7 +478,7 @@
             console.log("Message from server:", event.data);
         
             if (event.data === "queued") {
-                document.getElementById("queueMessage").style.display = "block";
+                document.getElementById("queueMessage").style.display = "flex";
                 document.getElementById("particles").style.display = "block";  // Mostra particellare
                 document.getElementById("infoScreen").style.display = "none"; // Nasconde infoScreen
             } else if (event.data === "connected") {
