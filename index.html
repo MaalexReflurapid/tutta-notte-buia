@@ -474,11 +474,20 @@
 
         ws.onmessage = (event) => {
             console.log("Message from server:", event.data);
+
+            const queueMessage = document.getElementById("queueMessage");
+            const particles = document.getElementById("particles-js");
+            const infoScreen = document.getElementById("infoScreen");
         
             if (event.data === "queued") {
-                document.getElementById("queueMessage").style.display = "block";
+                queueMessage.style.display = "flex";  // Mostra messaggio
+                particles.style.display = "block";     // Mostra particellare
+                infoScreen.style.display = "none";     // Nasconde infoScreen
             } else if (event.data === "connected") {
-                document.getElementById("queueMessage").style.display = "none";
+                queueMessage.style.display = "none";   // Nasconde messaggio
+                particles.style.display = "block";     // Il particellare può rimanere visibile
+                infoScreen.style.display = "block";    // Mostra infoScreen
+                infoScreen.classList.add("fade-in");   // Effetto fade-in
                 // Ora puoi procedere normalmente
             }
         };
