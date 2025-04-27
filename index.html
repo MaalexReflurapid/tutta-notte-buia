@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutta Notte Buia - MAalex</title>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
-
         /*FONTS*/
-        @font-face {
-            font-family: "Monospaced";
-            font-weight: 10%;
-            src: url(AtkinsonHyperlegibleMono-ExtraLight.ttf);
-        }
+
         @font-face {
             font-family: "GaramondC";
             font-weight: 10%;
             src: url("./font/CormorantGaramond-SemiBold.ttf")format("truetype");
         }
+
         @font-face {
             font-family: "Cinzel";
             font-weight: 10%;
             src: url("./font/Cinzel-SemiBold.ttf")format("truetype");
         }
+
         @font-face {
             font-family: "Satoshi";
             font-weight: 10%;
@@ -80,19 +78,27 @@
             background: black;
             color: white;
             cursor: pointer;
-            
+
         }
 
         input:focus {
-            outline:none;
+            outline: none;
         }
 
         /* Sections */
-        #infoScreen, #formSection, #questionSection, #canvasSection, #thankYouSection {
+        #infoScreen,
+        #formSection,
+        #questionSection,
+        #canvasSection,
+        #thankYouSection {
             transition: opacity 3s ease-in-out;
         }
 
-        #infoScreen, #formSection, #questionSection, #canvasSection, #thankYouSection {
+        #infoScreen,
+        #formSection,
+        #questionSection,
+        #canvasSection,
+        #thankYouSection {
             display: none;
         }
 
@@ -104,7 +110,8 @@
             height: 100%;
             background: black;
             color: white;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             justify-content: center;
             align-items: center;
             text-align: center;
@@ -120,7 +127,8 @@
             height: 100%;
             background: black;
             color: white;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             justify-content: center;
             align-items: center;
             text-align: center;
@@ -130,17 +138,45 @@
 
         /* ANIMATIONS */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .fade-in { opacity: 0; animation: fadeIn 3s ease-in forwards; }
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 3s ease-in forwards;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
 
-        .fade-out { animation: fadeOut 3s ease-out forwards; }
+            to {
+                opacity: 1;
+            }
+        }
 
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .fade-out {
+            animation: fadeOut 3s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
 
         /* BACKGROUND PARTICLE SYSTEM*/
         #particles-js {
@@ -154,7 +190,7 @@
             opacity: 0;
             animation: fadeIn 3s ease-in forwards;
         }
-    
+
 
         /* CANVAS APPEARANCE */
         #canvas_div {
@@ -170,20 +206,23 @@
             background-color: black;
             width: 100%;
             height: 100%;
-            touch-action: none; /* Prevents scrolling while drawing */
+            touch-action: none;
+            /* Prevents scrolling while drawing */
         }
     </style>
 </head>
+
 <body onload="getUserInfo(),initializePage()">
 
     <!-- Particle effect container -->
     <div id="particles-js"></div>
-    
+
     <!-- Queueing Orientation Message -->
     <div id="queueMessage">
         <p>It's not your time yet...</p>
+        <p id="queuePosition"></p>
     </div>
-    
+
     <!-- Check Orientation Message -->
     <div id="rotateMessage">
         <p>Please rotate your device to continue</p>
@@ -202,11 +241,13 @@
     <!-- Name, Surname, Email Form -->
     <div id="formSection">
         <form id="userForm">
-        <h1>Your Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required> </h1> 
+            <h1>Your Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required>
+            </h1>
 
-        <h1>Your Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required> </h1> 
+            <h1>Your Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required>
+            </h1>
 
-        <h1>Your Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1> 
+            <h1>Your Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1>
         </form>
         <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
     </div>
@@ -222,7 +263,7 @@
     <div id="canvasSection">
         <h1 id="drawTitle" class="fade-in">Please, sign here...:</h1>
         <div id="canvas_div">
-            <canvas id="canvas" class="fade-in"></canvas> 
+            <canvas id="canvas" class="fade-in"></canvas>
             <button onclick="clearCanvas();" class="fade-in">Clear</button>
             <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Submit Drawing</button>
         </div>
@@ -239,10 +280,10 @@
         let ws;
 
         function initializePage() {
-                document.getElementById("queueMessage").style.display = "flex";
-                document.getElementById("queueMessage").classList.add("fade-in");
-                connectWebSocket();
-            }
+            document.getElementById("queueMessage").style.display = "flex";
+            document.getElementById("queueMessage").classList.add("fade-in");
+            connectWebSocket();
+        }
 
         // Initialize Particles.js
         particlesJS("particles-js", {
@@ -280,7 +321,7 @@
             fetch("https://api.ipregistry.co/?key=tryout")
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("userLocation").innerHTML = 
+                    document.getElementById("userLocation").innerHTML =
                         `📍 Approximate Location: <b>${data.location.city}, ${data.location.country.name}</b>`;
                     document.getElementById("userIP").innerHTML =
                         `💻 IP Address: <b>${data.ip}</b>`;
@@ -298,12 +339,12 @@
                 document.getElementById("formSection").style.display = "block";
             }, 3000);
         }
-    
+
         function validateForm() {
             let firstName = document.getElementById("firstName").value.trim();
             let lastName = document.getElementById("lastName").value.trim();
             let email = document.getElementById("email").value.trim();
-    
+
             if (!firstName || !lastName || !email) {
                 alert("All fields are required!");
                 return;
@@ -314,23 +355,23 @@
                 alert("Please enter a valid email address!");
                 return;
             }
-    
+
             // Invia i dati via WebSocket
             const userData = {
                 firstName: firstName,
                 lastName: lastName,
                 email: email
             };
-    
+
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(userData));
                 console.log("Dati inviati:", userData);
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
-    
+
             goToQuestion();
-            
+
         }
 
         function isValidEmail(email) {
@@ -407,20 +448,20 @@
             }
 
             function draw(event) {
-            event.preventDefault();
-            if (!isDrawing) return;
+                event.preventDefault();
+                if (!isDrawing) return;
 
-            const { x, y } = getCoords(event);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 3;
-            ctx.lineCap = "round";
-            ctx.stroke();
+                const { x, y } = getCoords(event);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 3;
+                ctx.lineCap = "round";
+                ctx.stroke();
 
-            // Enable "Submit" only if something is drawn
-            if (!submitBtn.disabled) return;
-            submitBtn.disabled = false;
-            }   
+                // Enable "Submit" only if something is drawn
+                if (!submitBtn.disabled) return;
+                submitBtn.disabled = false;
+            }
 
             function stopDrawing(event) {
                 event.preventDefault();
@@ -455,13 +496,13 @@
             const canvas = document.getElementById("canvas");
             // Ottieni l'immagine in formato base64
             const dataURL = canvas.toDataURL("image/png");
-            
+
             // Costruisci il payload includendo i dati della firma
             const drawingData = {
                 type: "firma",
                 firma: dataURL
             };
-        
+
             // Invia il payload tramite WebSocket, se connesso
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(drawingData));
@@ -469,9 +510,9 @@
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
-            
+
             showThankYouPage();
-        
+
         }
 
         function showThankYouPage() {
@@ -479,7 +520,7 @@
             setTimeout(() => {
                 document.getElementById("canvasSection").style.display = "none";
                 document.getElementById("thankYouSection").style.display = "block";
-                
+
                 // Imposta il reindirizzamento dopo 30 secondi
                 setTimeout(() => {
                     window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Sostituisci con il link desiderato
@@ -489,32 +530,41 @@
 
 
         function connectWebSocket() {
-        ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
+            ws = new WebSocket("wss://websocket-server-vfu2.onrender.com/");
 
-        ws.onopen = () => {
-            console.log("WebSocket connected!");
-            // Handshake iniziale
-            ws.send(JSON.stringify({ role: "web_user" }));
-        };
+            ws.onopen = () => {
+                console.log("WebSocket connected!");
+                // Handshake iniziale
+                ws.send(JSON.stringify({ role: "web_user" }));
+            };
 
-        ws.onerror = (error) => console.error("WebSocket error:", error);
+            ws.onerror = (error) => console.error("WebSocket error:", error);
 
-        ws.onmessage = (event) => {
-            console.log("Message from server:", event.data);
-        
-            if (event.data === "queued") {
-                document.getElementById("queueMessage").style.display = "block";
-                document.getElementById("infoScreen").style.display = "none"
-            } else if (event.data === "connected") {
-                document.getElementById("queueMessage").style.display = "none";
-                document.getElementById("infoScreen").style.display = "block"
+            ws.onmessage = (event) => {
+                console.log("Message from server:", event.data);
 
-            }
-        };
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                } catch (e) {
+                    data = event.data;  // se non è JSON, tienilo come semplice stringa
+                }
 
-        ws.onclose = () => {
-            console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
-            setTimeout(connectWebSocket, 3000);
+                if (typeof data === "object" && data.status === "queued") {
+                    document.getElementById("queueMessage").style.display = "block";
+                    document.getElementById("queuePosition").innerHTML = `You are ${data.position} in queue`
+                    document.getElementById("infoScreen").style.display = "none"
+
+                } else if (data === "connected" || (typeof data === "object" && data.status === "connected")) {
+                    document.getElementById("queueMessage").style.display = "none";
+                    document.getElementById("infoScreen").style.display = "block"
+
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("🔌 WebSocket disconnected. Reconnecting in 3 seconds...");
+                setTimeout(connectWebSocket, 3000);
             };
         }
 
@@ -526,16 +576,17 @@
                 window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Replace with your desired URL
             }, 120000); // 2 minutes = 120,000 milliseconds
         }
-        
+
         document.addEventListener("mousemove", resetInactivityTimer);
         document.addEventListener("keydown", resetInactivityTimer);
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
-        
+
         // Initialize the timer when the page loads
         resetInactivityTimer();
-            
+
     </script>
 
 </body>
+
 </html>
