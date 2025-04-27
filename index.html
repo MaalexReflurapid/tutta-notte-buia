@@ -6,19 +6,32 @@
     <title>Tutta Notte Buia - MAalex</title>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* Background effect with fade-in animation */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            background-color: black;
-            opacity: 0;
-            animation: fadeIn 3s ease-in forwards;
+
+        /*FONTS*/
+        @font-face {
+            font-family: "Monospaced";
+            font-weight: 10%;
+            src: url(AtkinsonHyperlegibleMono-ExtraLight.ttf);
+        }
+        @font-face {
+            font-family: "GaramondC";
+            font-weight: 10%;
+            src: url("./font/CormorantGaramond-SemiBold.ttf")format("truetype");
+        }
+        @font-face {
+            font-family: "Cinzel";
+            font-weight: 10%;
+            src: url("./font/Cinzel-SemiBold.ttf")format("truetype");
+        }
+        @font-face {
+            font-family: "Satoshi";
+            font-weight: 10%;
+            src: url("./font/Satoshi-Variable.ttf")format("truetype");
         }
 
+
+
+        /*SECTIONS & ELEMENTS APPEARANCE*/
         body {
             background-color: black;
             margin: 0;
@@ -26,23 +39,18 @@
             font-family: 'Courier New', Courier, monospace;
             text-align: center;
             color: white;
-        }
-
-        @font-face {
-            font-family: "Monospaced";
-            font-weight: 10%;
-            src: url(AtkinsonHyperlegibleMono-ExtraLight.ttf);
+            overflow: hidden;
         }
 
         h1 {
-            font-family: "Monospaced";
+            font-family: "Cinzel";
             opacity: 0;
             font-size: 150%;
             animation: fadeInUp 3s ease-out forwards;
         }
 
         p {
-            font-family: "Monospaced";
+            font-family: "Satoshi";
             opacity: 0;
             animation: fadeInUp 3s ease-out forwards;
         }
@@ -84,11 +92,43 @@
             transition: opacity 3s ease-in-out;
         }
 
-        #formSection, #questionSection, #canvasSection, #thankYouSection {
+        #infoScreen, #formSection, #questionSection, #canvasSection, #thankYouSection {
             display: none;
         }
 
-        /* Fade-in and fade-out animations */
+        #rotateMessage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 150%;
+            z-index: 2;
+        }
+
+        #queueMessage {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 150%;
+            z-index: 1;
+        }
+
+        /* ANIMATIONS */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
@@ -102,39 +142,21 @@
 
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        #rotateMessage {
+        /* BACKGROUND PARTICLE SYSTEM*/
+        #particles-js {
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background: black;
-            color: white;
-            display: none; /* Hidden by default */
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 150%;
-            z-index: 1000;
-        }
-
-        #queueMessage {
-            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            color: white;
-            display: none; /* Hidden by default */
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 150%;
-            z-index: 1000;
+            z-index: -1;
+            background-color: black;
+            opacity: 0;
+            animation: fadeIn 3s ease-in forwards;
         }
+    
 
-        /* Canvas styles */
+        /* CANVAS APPEARANCE */
         #canvas_div {
             text-align: center;
             display: block;
@@ -152,15 +174,17 @@
         }
     </style>
 </head>
-<body onload="getUserInfo()">
+<body onload="getUserInfo(),initializePage()">
 
     <!-- Particle effect container -->
     <div id="particles-js"></div>
-
+    
+    <!-- Queueing Orientation Message -->
     <div id="queueMessage">
         <p>It's not your time yet...</p>
     </div>
     
+    <!-- Check Orientation Message -->
     <div id="rotateMessage">
         <p>Please rotate your device to continue</p>
     </div>
@@ -196,7 +220,7 @@
 
     <!-- Drawing Section -->
     <div id="canvasSection">
-        <h1 id="drawTitle" class="fade-in">Draw something here:</h1>
+        <h1 id="drawTitle" class="fade-in">Please, sign here...:</h1>
         <div id="canvas_div">
             <canvas id="canvas" class="fade-in"></canvas> 
             <button onclick="clearCanvas();" class="fade-in">Clear</button>
@@ -211,6 +235,14 @@
     </div>
 
     <script>
+        // Initialize WebSocket connection and Page
+        let ws;
+
+        function initializePage() {
+                document.getElementById("queueMessage").style.display = "flex";
+                document.getElementById("queueMessage").classList.add("fade-in");
+                connectWebSocket();
+            }
 
         // Initialize Particles.js
         particlesJS("particles-js", {
@@ -223,7 +255,7 @@
                 "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true, "straight": false, "out_mode": "out" },
                 "line_linked": { "enable": false }
             },
-            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } } },
+            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true }, "onclick": { "enable": true } } },
             "retina_detect": true
         });
 
@@ -266,10 +298,6 @@
                 document.getElementById("formSection").style.display = "block";
             }, 3000);
         }
-
-         // Initialize WebSocket connection
-        let ws;
-        connectWebSocket();
     
         function validateForm() {
             let firstName = document.getElementById("firstName").value.trim();
@@ -296,7 +324,7 @@
     
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(userData));
-                console.log("📤 Dati inviati:", userData);
+                console.log("Dati inviati:", userData);
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
@@ -345,7 +373,7 @@
 
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(message));
-                console.log("📤 Messaggio di pulizia inviato:", message);
+                console.log("Messaggio di pulizia inviato:", message);
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
@@ -437,7 +465,7 @@
             // Invia il payload tramite WebSocket, se connesso
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(drawingData));
-                console.log("📤 Firma inviata:", drawingData);
+                console.log("Firma inviata:", drawingData);
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
@@ -476,9 +504,16 @@
         
             if (event.data === "queued") {
                 document.getElementById("queueMessage").style.display = "block";
+                document.getElementById("infoScreen").style.display = "none"
             } else if (event.data === "connected") {
                 document.getElementById("queueMessage").style.display = "none";
-                // Ora puoi procedere normalmente
+                document.getElementById("infoScreen").style.display = "block"
+
+                 // Rimuovi e riattiva animazione
+                document.getElementById("infoScreen").classList.remove("fade-in");
+                void document.getElementById("infoScreen").offsetWidth;
+                document.getElementById("infoScreen").classList.add("fade-in");
+
             }
         };
 
