@@ -255,7 +255,7 @@
                 "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true, "straight": false, "out_mode": "out" },
                 "line_linked": { "enable": false }
             },
-            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true }, "onclick": { "enable": true } } },
+            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true }, "onclick": { "enable": true }, "ontouch": { "enable": true } } },
             "retina_detect": true
         });
 
@@ -508,11 +508,6 @@
             } else if (event.data === "connected") {
                 document.getElementById("queueMessage").style.display = "none";
                 document.getElementById("infoScreen").style.display = "block"
-
-                 // Rimuovi e riattiva animazione
-                document.getElementById("infoScreen").classList.remove("fade-in");
-                void document.getElementById("infoScreen").offsetWidth;
-                document.getElementById("infoScreen").classList.add("fade-in");
 
             }
         };
