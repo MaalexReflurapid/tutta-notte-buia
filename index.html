@@ -265,7 +265,7 @@
         <div id="canvas_div">
             <canvas id="canvas" class="fade-in"></canvas>
             <button onclick="clearCanvas();" class="fade-in">Clear</button>
-            <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Submit Drawing</button>
+            <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Sign the Contract</button>
         </div>
     </div>
 
@@ -581,6 +581,9 @@
         document.addEventListener("keydown", resetInactivityTimer);
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
+            // Pulizia automatica alla chiusura o aggiornamento della pagina
+        window.addEventListener("beforeunload", sendClearMessage);
+        window.addEventListener("unload", sendClearMessage);
 
         // Initialize the timer when the page loads
         resetInactivityTimer();
