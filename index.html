@@ -108,7 +108,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: black;
+            background:rgba(0, 0, 0, 0);
             color: white;
             display: none;
             /* Hidden by default */
@@ -252,6 +252,12 @@
         <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
     </div>
 
+    <!-- Processing Section -->
+    <div id="processingSection" style="display: none;">
+        <h1>Your data is being processed...</h1>
+        <p>Please wait while we prepare your passage.</p>
+    </div>
+
     <!-- Question Section -->
     <div id="questionSection" style="display: none;">
         <h1>Do you want to be forgotten?</h1>
@@ -278,6 +284,7 @@
     <script>
         // Initialize WebSocket connection and Page
         let ws;
+        let isPromotedClient = false;
 
         function initializePage() {
             document.getElementById("queueMessage").style.display = "flex";
@@ -308,11 +315,6 @@
                 rotateMessage.style.display = "none"; // Hide message in landscape mode
             }
         }
-
-        // Run the check when the page loads and when the screen rotates
-        window.addEventListener("load", checkOrientation);
-        window.addEventListener("resize", checkOrientation);
-
 
         function getUserInfo() {
             document.getElementById("browserLanguage").innerHTML = `🌍 Browser Language: <b>${navigator.language}</b>`;
@@ -370,7 +372,7 @@
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
 
-            goToQuestion();
+            goToProcessing();
 
         }
 
@@ -378,6 +380,14 @@
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailPattern.test(email);
         }
+
+        function goToProcessing() {
+                document.getElementById("formSection").classList.add("fade-out");
+                setTimeout(() => {
+                    document.getElementById("formSection").style.display = "none";
+                    document.getElementById("processingSection").style.display = "block";
+                }, 3000);
+            }
 
         function goToQuestion() {
             document.getElementById("formSection").classList.add("fade-out");
@@ -389,10 +399,31 @@
 
         function answerYes() {
             document.getElementById("questionSection").classList.add("fade-out");
+
             setTimeout(() => {
                 document.getElementById("questionSection").style.display = "none";
-                document.getElementById("canvasSection").style.display = "block";
-                setupCanvas();
+
+                // Ora controlliamo se l'utente è in portrait
+                if (window.innerHeight > window.innerWidth) {
+                    // Mostra il messaggio di rotazione
+                    document.getElementById("rotateMessage").style.display = "flex";
+
+                    // Imposta un listener per procedere automaticamente quando ruota
+                    const waitForRotation = () => {
+                        if (window.innerWidth > window.innerHeight) {
+                            window.removeEventListener("resize", waitForRotation);
+                            document.getElementById("rotateMessage").style.display = "none";
+                            document.getElementById("canvasSection").style.display = "block";
+                            setupCanvas();
+                        }
+                    };
+
+                    window.addEventListener("resize", waitForRotation);
+                } else {
+                    // Se è già in landscape, continua normalmente
+                    document.getElementById("canvasSection").style.display = "block";
+                    setupCanvas();
+                }
             }, 3000);
         }
 
@@ -408,13 +439,31 @@
         }
 
         function sendClearMessage() {
+            if (!isPromotedClient) {
+                console.log(" Non sei il client attivo, quindi non invio clear_variable.");
+                return;
+            }
+
             const message = {
                 action: "clear_variable"
             };
 
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(message));
-                console.log("Messaggio di pulizia inviato:", message);
+                console.log(" Messaggio di pulizia inviato:", message);
+            } else {
+                console.error("WebSocket non connesso. Riprova più tardi.");
+            }
+        }
+
+        function sendDissolveMessage() {
+            const message = {
+                action: "dissolve_data"
+            };
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+                console.log("Messaggio di cancellazione inviato:", message);
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
@@ -507,6 +556,7 @@
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(drawingData));
                 console.log("Firma inviata:", drawingData);
+                sendDissolveMessage()
             } else {
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
@@ -552,13 +602,17 @@
 
                 if (typeof data === "object" && data.status === "queued") {
                     document.getElementById("queueMessage").style.display = "block";
-                    document.getElementById("queuePosition").innerHTML = `You are ${data.position} in queue`
+                    document.getElementById("queuePosition").innerHTML = `You are n.${data.position} in queue`
                     document.getElementById("infoScreen").style.display = "none"
 
                 } else if (data === "connected" || (typeof data === "object" && data.status === "connected")) {
+                    isPromotedClient = true;  // adesso sei il client attivo
                     document.getElementById("queueMessage").style.display = "none";
                     document.getElementById("infoScreen").style.display = "block"
-
+                }
+                else if (typeof data === "object" && data.status === "ready_for_question") {
+                    document.getElementById("processingSection").style.display = "none";
+                    document.getElementById("questionSection").style.display = "block";
                 }
             };
 
@@ -574,16 +628,33 @@
             clearTimeout(inactivityTimeout);
             inactivityTimeout = setTimeout(() => {
                 window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Replace with your desired URL
-            }, 120000); // 2 minutes = 120,000 milliseconds
+            }, 180000); // 3 minutes = 180.000 milliseconds
         }
 
         document.addEventListener("mousemove", resetInactivityTimer);
         document.addEventListener("keydown", resetInactivityTimer);
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
-            // Pulizia automatica alla chiusura o aggiornamento della pagina
-        window.addEventListener("beforeunload", sendClearMessage);
+
+        // Pulizia automatica alla chiusura o aggiornamento della pagina o cambio di visibilitá
+        document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    sendClearMessage();
+                }
+            });
         window.addEventListener("unload", sendClearMessage);
+        window.addEventListener("pagehide", () => {
+                localStorage.setItem("wasHidden", "true");
+                sendClearMessage();  // o qualsiasi cleanup
+            });
+        
+        // Reload della pagina quando l'utente rientra sulla pagina
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && localStorage.getItem("wasHidden") === "true") {
+                localStorage.removeItem("wasHidden");
+                location.reload(); // ricarica automatica al ritorno
+            }
+        });
 
         // Initialize the timer when the page loads
         resetInactivityTimer();
