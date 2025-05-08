@@ -87,7 +87,9 @@
 
         /* Sections */
         #infoScreen,
+        #transitionScreen,
         #formSection,
+        #processingSection,
         #questionSection,
         #canvasSection,
         #thankYouSection {
@@ -95,11 +97,14 @@
         }
 
         #infoScreen,
+        #transitionScreen,
         #formSection,
+        #processingSection,
         #questionSection,
         #canvasSection,
         #thankYouSection {
             display: none;
+            position: relative;
         }
 
         #rotateMessage {
@@ -230,12 +235,12 @@
 
     <!-- First Screen with User Info -->
     <div id="infoScreen">
-        <h1>Welcome!</h1>
-        <p id="browserLanguage">🌍 Detecting browser language...</p>
-        <p id="timeZone">🕒 Detecting time zone...</p>
-        <p id="userLocation">📍 Detecting location...</p>
-        <p id="userIP">💻 Detecting IP address...</p>
-        <button onclick="proceedToForm()">Continue</button>
+        <h1 id="welcomeMessage">Hi...</h1>
+    </div>
+
+    <!-- Transition Screen -->
+    <div id="transitionScreen">
+        <h1 id="transitionLine" style="opacity: 0;">Who is this?</h1>
     </div>
 
     <!-- Name, Surname, Email Form -->
@@ -265,7 +270,7 @@
         <button onclick="answerNo()">No</button>
     </div>
 
-    <!-- Drawing Section -->
+    <!-- Signature Section -->
     <div id="canvasSection">
         <h1 id="drawTitle" class="fade-in">Please, sign here...:</h1>
         <div id="canvas_div">
@@ -317,25 +322,62 @@
         }
 
         function getUserInfo() {
-            document.getElementById("browserLanguage").innerHTML = `🌍 Browser Language: <b>${navigator.language}</b>`;
-            document.getElementById("timeZone").innerHTML = `🕒 Time Zone: <b>${Intl.DateTimeFormat().resolvedOptions().timeZone}</b>`;
+            document.getElementById("infoScreen").classList.add("fade-in");
+            const lang = navigator.language || navigator.userLanguage;
+            const baseLang = lang.split("-")[0];
 
-            fetch("https://api.ipregistry.co/?key=tryout")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("userLocation").innerHTML =
-                        `📍 Approximate Location: <b>${data.location.city}, ${data.location.country.name}</b>`;
-                    document.getElementById("userIP").innerHTML =
-                        `💻 IP Address: <b>${data.ip}</b>`;
-                })
-                .catch(() => {
-                    document.getElementById("userLocation").innerHTML = "📍 Location unavailable.";
-                    document.getElementById("userIP").innerHTML = "💻 IP unavailable.";
-                });
+            const greetings = {
+                en: "Hello",
+                it: "Ciao",
+                fr: "Salut",
+                de: "Hallo",
+                es: "Hola",
+                pt: "Olá",
+                nl: "Hallo",
+                sv: "Hej",
+                no: "Hei",
+                da: "Hej",
+                fi: "Hei",
+                pl: "Cześć",
+                cs: "Ahoj",
+                hu: "Szia",
+                tr: "Merhaba",       // turco
+                el: "Γεια",          // greco
+                ar: "مرحبا",         // arabo
+                fa: "سلام",           // persiano
+                he: "שלום",           // ebraico
+                hi: "नमस्ते",          // hindi
+                ko: "안녕하세요",       // coreano
+                ja: "こんにちは",       // giapponese
+                zh: "你好",           // cinese
+                ru: "Привет",         // russo
+                uk: "Привіт",         // ucraino
+                ro: "Salut",
+                th: "สวัสดี",         // thailandese
+                id: "Halo",          // indonesiano
+                vi: "Xin chào"       // vietnamita
+            };
+
+            const altGreeting = greetings[baseLang] || "hello";
+            document.getElementById("welcomeMessage").innerHTML = `Hi... or should I say <span style="font-style: italic;">${altGreeting}</span>?`;
+        }
+
+        function TransitionScreen() {
+            document.getElementById("infoScreen").classList.add("fade-out");
+
+            setTimeout(() => {
+                document.getElementById("infoScreen").style.display = "none";
+                document.getElementById("transitionScreen").style.display = "block";
+
+                // Passa automaticamente al form dopo 5s
+                setTimeout(() => {
+                    proceedToForm();
+                }, 5000);
+            }, 3000); // attende il fade-out
         }
 
         function proceedToForm() {
-            document.getElementById("infoScreen").classList.add("fade-out");
+            document.getElementById("transitionScreen").classList.add("fade-out");
             setTimeout(() => {
                 document.getElementById("infoScreen").style.display = "none";
                 document.getElementById("formSection").style.display = "block";
@@ -390,9 +432,9 @@
             }
 
         function goToQuestion() {
-            document.getElementById("formSection").classList.add("fade-out");
+            document.getElementById("processingSection").classList.add("fade-out");
             setTimeout(() => {
-                document.getElementById("formSection").style.display = "none";
+                document.getElementById("processingSection").style.display = "none";
                 document.getElementById("questionSection").style.display = "block";
             }, 3000);
         }
@@ -609,6 +651,10 @@
                     isPromotedClient = true;  // adesso sei il client attivo
                     document.getElementById("queueMessage").style.display = "none";
                     document.getElementById("infoScreen").style.display = "block"
+                     // Avvia la transizione dopo un leggero delay, ora che è promosso
+                    setTimeout(() => {
+                        TransitionScreen();
+                    }, 5000); // o anche 3000 se vuoi un passaggio più rapido
                 }
                 else if (typeof data === "object" && data.status === "ready_for_question") {
                     document.getElementById("processingSection").style.display = "none";
@@ -636,24 +682,21 @@
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
 
-        // Pulizia automatica alla chiusura o aggiornamento della pagina o cambio di visibilitá
+        // Pulizia automatica quando la pagina viene nascosta o chiusa
         document.addEventListener("visibilitychange", () => {
-                if (document.hidden) {
-                    sendClearMessage();
-                }
-            });
-        window.addEventListener("unload", sendClearMessage);
-        window.addEventListener("pagehide", () => {
-                localStorage.setItem("wasHidden", "true");
-                sendClearMessage();  // o qualsiasi cleanup
-            });
-        
-        // Reload della pagina quando l'utente rientra sulla pagina
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden && localStorage.getItem("wasHidden") === "true") {
+            if (document.hidden) {
+                sendClearMessage();
+            } else if (localStorage.getItem("wasHidden") === "true") {
                 localStorage.removeItem("wasHidden");
-                location.reload(); // ricarica automatica al ritorno
+                //location.reload(); // ricarica automatica al ritorno
             }
+        });
+
+        window.addEventListener("unload", sendClearMessage);
+
+        window.addEventListener("pagehide", () => {
+            localStorage.setItem("wasHidden", "true");
+            sendClearMessage();
         });
 
         // Initialize the timer when the page loads
