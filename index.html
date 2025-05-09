@@ -41,7 +41,7 @@
         }
 
         h1 {
-            font-family: "Cinzel";
+            font-family: "Satoshi";
             opacity: 0;
             font-size: 150%;
             animation: fadeInUp 3s ease-out forwards;
@@ -225,7 +225,6 @@
     <!-- Queueing Orientation Message -->
     <div id="queueMessage">
         <p>It's not your time yet...</p>
-        <p id="queuePosition"></p>
     </div>
 
     <!-- Check Orientation Message -->
@@ -642,20 +641,27 @@
                     data = event.data;  // se non è JSON, tienilo come semplice stringa
                 }
 
-                if (typeof data === "object" && data.status === "queued") {
-                    document.getElementById("queueMessage").style.display = "block";
-                    document.getElementById("queuePosition").innerHTML = `You are n.${data.position} in queue`
-                    document.getElementById("infoScreen").style.display = "none"
-
-                } else if (data === "connected" || (typeof data === "object" && data.status === "connected")) {
-                    isPromotedClient = true;  // adesso sei il client attivo
+                if (data === "connected" || (typeof data === "object" && data.status === "connected")) {
+                    isPromotedClient = true;  // Client promosso
                     document.getElementById("queueMessage").style.display = "none";
-                    document.getElementById("infoScreen").style.display = "block"
-                     // Avvia la transizione dopo un leggero delay, ora che è promosso
+                    document.getElementById("infoScreen").style.display = "block";
+
+                    // ⏳ Avvia la transizione dopo 5 secondi
                     setTimeout(() => {
                         TransitionScreen();
-                    }, 5000); // o anche 3000 se vuoi un passaggio più rapido
+                    }, 5000);
+
+                } else if (data === "queued" || (typeof data === "object" && data.status === "queued")) {
+                    isPromotedClient = false;  // Non è il client attivo
+                    document.getElementById("queueMessage").style.display = "block";
+                    document.getElementById("infoScreen").style.display = "none";
+
+                    // ⏳ Dopo 10 secondi, reindirizza
+                    setTimeout(() => {
+                        window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
+                    }, 10000);
                 }
+                
                 else if (typeof data === "object" && data.status === "ready_for_question") {
                     document.getElementById("processingSection").style.display = "none";
                     document.getElementById("questionSection").style.display = "block";
@@ -673,8 +679,11 @@
         function resetInactivityTimer() {
             clearTimeout(inactivityTimeout);
             inactivityTimeout = setTimeout(() => {
-                window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Replace with your desired URL
-            }, 180000); // 3 minutes = 180.000 milliseconds
+                if (isPromotedClient) {
+                    sendClearMessage();
+                }
+                window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
+            }, 180000); // 3 minuti = 180000 ms
         }
 
         document.addEventListener("mousemove", resetInactivityTimer);
@@ -682,25 +691,40 @@
         document.addEventListener("click", resetInactivityTimer);
         document.addEventListener("touchstart", resetInactivityTimer);
 
-        // Pulizia automatica quando la pagina viene nascosta o chiusa
+        // Avvia il timer al caricamento
+        resetInactivityTimer();
+
+        // Quando la pagina viene nascosta o riattivata
         document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                sendClearMessage();
-            } else if (localStorage.getItem("wasHidden") === "true") {
+            if (!document.hidden && localStorage.getItem("wasHidden") === "true") {
                 localStorage.removeItem("wasHidden");
-                //location.reload(); // ricarica automatica al ritorno
+                // location.reload(); // opzionale, se vuoi ricaricare
             }
         });
 
-        window.addEventListener("unload", sendClearMessage);
-
+        // Quando la pagina viene realmente chiusa o ricaricata
         window.addEventListener("pagehide", () => {
             localStorage.setItem("wasHidden", "true");
             sendClearMessage();
         });
 
-        // Initialize the timer when the page loads
-        resetInactivityTimer();
+        let hiddenTimeout;
+
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    console.log("📥 Pagina nascosta. Avvio timer di 60s per il reindirizzamento.");
+                    hiddenTimeout = setTimeout(() => {
+                        console.log("⏳ 60s passati in background → reindirizzamento forzato.");
+                        window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
+                    }, 60000); // 60s = 60000ms
+                } else {
+                    // L'utente è tornato → annulla il reindirizzamento
+                    clearTimeout(hiddenTimeout);
+                    console.log("🟢 Pagina visibile di nuovo. Timer annullato.");
+                }
+            });
+
+        window.addEventListener("unload", sendClearMessage);
 
     </script>
 
