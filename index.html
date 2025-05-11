@@ -191,40 +191,22 @@
 
 
         /* CANVAS APPEARANCE */
-
-        #canvasSection {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-            padding: 0;
-        }
-
         #canvas_div {
-            width: 90vw;
-            height: 70vh; /* puoi regolare qui */
             text-align: center;
-            display: flex;
-            justify-content: center;
-        	align-items: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 90vw;
+            height: 50vh;
         }
 
         canvas {
             background-color: black;
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             touch-action: none;
             /* Prevents scrolling while drawing */
         }
-
-        /* Pulsanti sempre visibili nella parte bassa */
-        #canvasSection button {
-            font-size: 18px;
-            margin-bottom: 2vh;
-        }
-
     </style>
 </head>
 
@@ -296,7 +278,7 @@
         <div id="canvas_div">
             <canvas id="canvas" class="fade-in"></canvas>
             <button type="button" class="fade-in" onclick="clearCanvas()">Clear</button>
-            <button type="button" class="fade-in" id="submitDrawingBtn" onclick="submitDrawing()">Sign</button>
+            <button type="button" class="fade-in" id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Sign</button>
         </div>
     </div>
 
