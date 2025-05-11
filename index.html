@@ -10,24 +10,10 @@
         /*FONTS*/
 
         @font-face {
-            font-family: "GaramondC";
-            font-weight: 10%;
-            src: url("./font/CormorantGaramond-SemiBold.ttf")format("truetype");
-        }
-
-        @font-face {
-            font-family: "Cinzel";
-            font-weight: 10%;
-            src: url("./font/Cinzel-SemiBold.ttf")format("truetype");
-        }
-
-        @font-face {
             font-family: "Satoshi";
             font-weight: 10%;
             src: url("./font/Satoshi-Variable.ttf")format("truetype");
         }
-
-
 
         /*SECTIONS & ELEMENTS APPEARANCE*/
         body {
@@ -62,6 +48,11 @@
             color: white;
             border-radius: 8px;
             cursor: pointer;
+        }
+
+        button.fade-in {
+            opacity:0;
+            animation: fadeInUp 3s ease-in forwards;
         }
 
         button:disabled {
@@ -193,7 +184,9 @@
             z-index: -1;
             background-color: black;
             opacity: 0;
-            animation: fadeIn 3s ease-in forwards;
+            transition: fadeIn 3s ease-in forwards;
+            /*animation: fadeOut 3s ease-out forwards;
+            /*transition: opacity 3s ease-out;*/
         }
 
 
@@ -214,6 +207,33 @@
             touch-action: none;
             /* Prevents scrolling while drawing */
         }
+
+        @media screen and (max-width: 768px) {
+            #canvas_div {
+                height: 40vh;
+            }
+
+            canvas {
+                height: 100%;
+            }
+
+            #canvasSection {
+                height: 100vh;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-bottom: 4vh;
+            }
+
+            #canvasSection button {
+                position: relative;
+                margin-top: 2vh;
+                font-size: 16px;
+            }
+        }
+
     </style>
 </head>
 
@@ -245,44 +265,58 @@
     <!-- Name, Surname, Email Form -->
     <div id="formSection">
         <form id="userForm">
-            <h1>Your Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required>
+            <h1>Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required>
             </h1>
 
-            <h1>Your Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required>
+            <h1>Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required>
             </h1>
 
-            <h1>Your Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1>
+            <h1>Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1>
         </form>
-        <button type="button" class="fade-in" onclick="validateForm()">Submit</button>
+        <button type="button" class="fade-in" onclick="validateForm()">Send</button>
     </div>
 
     <!-- Processing Section -->
     <div id="processingSection" style="display: none;">
-        <h1>Your data is being processed...</h1>
-        <p>Please wait while we prepare your passage.</p>
+        <h1>I am looking for you</h1>
+        <p>Please keep this page open</p>
+    </div>
+
+    <!-- Pre-Question Screen -->
+    <div id="preQuestionScreen" style="display: none;">
+        <h1 class="fade-in">There you are</h1>
     </div>
 
     <!-- Question Section -->
     <div id="questionSection" style="display: none;">
         <h1>Do you want to be forgotten?</h1>
-        <button onclick="answerYes()">Yes</button>
-        <button onclick="answerNo()">No</button>
+        <button type="button" class="fade-in" onclick="answerYes()">Yes</button>
+        <button type="button" class="fade-in" onclick="answerNo()">No</button>
+    </div>
+
+    <!-- No to Contract Screen -->
+    <div id="noToContractScreen" style="display: none;">
+        <h1 class="fade-in">Your data will live forever</h1>
     </div>
 
     <!-- Signature Section -->
     <div id="canvasSection">
-        <h1 id="drawTitle" class="fade-in">Please, sign here...:</h1>
+        <h1 id="drawTitle" class="fade-in">Sign here:</h1>
         <div id="canvas_div">
             <canvas id="canvas" class="fade-in"></canvas>
-            <button onclick="clearCanvas();" class="fade-in">Clear</button>
-            <button id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Sign the Contract</button>
+            <button type="button" class="fade-in" onclick="clearCanvas()">Clear</button>
+            <button type="button" class="fade-in" id="submitDrawingBtn" onclick="submitDrawing()">Sign</button>
         </div>
+    </div>
+
+    <!-- Not Forgotten Screen -->
+    <div id="notForgottenScreen" style="display: none;">
+        <h1 class="fade-in">Here, nobody is ever truly forgotten</h1>
     </div>
 
     <!-- Thank You Section -->
     <div id="thankYouSection" style="display: none;">
-        <h1>Thank you for taking part to Tutta Notte Buia</h1>
-        <p> Your contribution is greatly appreciated. </p>
+        <h1>Tutta Notte Buia</h1>
     </div>
 
     <script>
@@ -293,6 +327,12 @@
         function initializePage() {
             document.getElementById("queueMessage").style.display = "flex";
             document.getElementById("queueMessage").classList.add("fade-in");
+
+            // Attiva il fade-in manuale delle particelle
+            setTimeout(() => {
+                document.getElementById("particles-js").style.opacity = "1";
+            }, 100); // leggerissimo delay dopo DOM ready
+
             connectWebSocket();
         }
 
@@ -429,11 +469,25 @@
                     document.getElementById("processingSection").style.display = "block";
                 }, 3000);
             }
+        
+            function goToPreQuestion() {
+                document.getElementById("processingSection").classList.add("fade-out");
+
+                setTimeout(() => {
+                    document.getElementById("processingSection").style.display = "none";
+                    document.getElementById("preQuestionScreen").style.display = "block";
+
+                    // ⏳ Dopo 20 secondi → chiama goToQuestion()
+                    setTimeout(goToQuestion, 20000);
+
+                }, 3000); // attesa dopo il fade-out del processing
+            }
+
 
         function goToQuestion() {
-            document.getElementById("processingSection").classList.add("fade-out");
+            document.getElementById("preQuestionScreen").classList.add("fade-out");
             setTimeout(() => {
-                document.getElementById("processingSection").style.display = "none";
+                document.getElementById("preQuestionScreen").style.display = "none";
                 document.getElementById("questionSection").style.display = "block";
             }, 3000);
         }
@@ -475,9 +529,25 @@
                 // Invia il messaggio di reset data research
                 sendClearMessage();
 
-                showThankYouPage();
+                goToNoToContract();
             }, 3000);
         }
+
+        function goToNoToContract() {
+                document.getElementById("questionSection").classList.add("fade-out");
+
+                setTimeout(() => {
+                    document.getElementById("questionSection").style.display = "none";
+                    document.getElementById("noToContractScreen").style.display = "block";
+
+                            // Dopo 8s → passa alla Thank You
+                    setTimeout(() => {
+                        document.getElementById("noToContractScreen").classList.add("fade-out");
+                        setTimeout(showThankYouPage, 3000);
+                    }, 8000);
+
+                }, 3000);
+            }
 
         function sendClearMessage() {
             if (!isPromotedClient) {
@@ -516,7 +586,7 @@
                 document.getElementById("formSection").style.display = "none";
                 document.getElementById("canvasSection").style.display = "block";
                 setupCanvas();
-            }, 3000);
+            }, 6000);
         }
 
         function setupCanvas() {
@@ -602,22 +672,47 @@
                 console.error("WebSocket non connesso. Riprova più tardi.");
             }
 
-            showThankYouPage();
+            goToNotForgotten();
 
         }
+
+        function goToNotForgotten() {
+                document.getElementById("canvasSection").classList.add("fade-out");
+
+                setTimeout(() => {
+                    document.getElementById("canvasSection").style.display = "none";
+                    document.getElementById("notForgottenScreen").style.display = "block";
+
+                    // Dopo 15s → passa alla Thank You
+                    setTimeout(() => {
+                        document.getElementById("notForgottenScreen").classList.add("fade-out");
+                        setTimeout(showThankYouPage, 3000); // aspetta che il fade-out finisca
+                    }, 15000);
+
+                }, 3000); // attesa per fade-out canvas
+            }
 
         function showThankYouPage() {
-            document.getElementById("canvasSection").classList.add("fade-out");
-            setTimeout(() => {
                 document.getElementById("canvasSection").style.display = "none";
-                document.getElementById("thankYouSection").style.display = "block";
+                const thankYou = document.getElementById("thankYouSection");
+                const particles = document.getElementById("particles-js");
 
-                // Imposta il reindirizzamento dopo 30 secondi
+                // Mostra la sezione finale
+                thankYou.style.display = "block";
+
+                // Dopo un po', esegui il fade-out del testo e del particellare
                 setTimeout(() => {
-                    window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid"; // Sostituisci con il link desiderato
-                }, 30000); // 30000 ms = 30 secondi
-            }, 3000);
-        }
+                    thankYou.classList.add("fade-out");
+                    particles.classList.add("fade-out");
+
+                    // Attendi 5s di buio prima del reindirizzamento
+                    setTimeout(() => {
+                        window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
+                    }, 10000);
+
+                }, 10000); // dopo 10s di messaggio visibile
+                
+            }
 
 
         function connectWebSocket() {
@@ -663,8 +758,7 @@
                 }
                 
                 else if (typeof data === "object" && data.status === "ready_for_question") {
-                    document.getElementById("processingSection").style.display = "none";
-                    document.getElementById("questionSection").style.display = "block";
+                    goToPreQuestion();
                 }
             };
 
