@@ -296,6 +296,7 @@
         // Initialize WebSocket connection and Page
         let ws;
         let isPromotedClient = false;
+        let redirectTimerQueued = null;
 
         function initializePage() {
             document.getElementById("queueMessage").style.display = "flex";
@@ -710,11 +711,26 @@
                 }
 
                 if (data === "connected" || (typeof data === "object" && data.status === "connected")) {
+                    if (redirectTimerQueued !== null) {
+                        clearTimeout(redirectTimerQueued);
+                        redirectTimerQueued = null;
+                        console.log(" Reindirizzamento da 'queued' annullato: client promosso");
+                    }
                     isPromotedClient = true;  // Client promosso
+                    
+                    const message = {
+                        action: "user_connected"
+                    };
+
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify(message));
+                        console.log("Messaggio inviato a Python:", message);
+                    }
+
                     document.getElementById("queueMessage").style.display = "none";
                     document.getElementById("infoScreen").style.display = "block";
 
-                    // ⏳ Avvia la transizione dopo 5 secondi
+                    //  Avvia la transizione dopo 5 secondi
                     setTimeout(() => {
                         TransitionScreen();
                     }, 5000);
@@ -724,10 +740,10 @@
                     document.getElementById("queueMessage").style.display = "block";
                     document.getElementById("infoScreen").style.display = "none";
 
-                    // ⏳ Dopo 10 secondi, reindirizza
-                    setTimeout(() => {
+                    //  Dopo 10 secondi, reindirizza
+                    redirectTimerQueued = setTimeout(() => {
                         window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
-                    }, 10000);
+                    }, 15000);
                 }
                 
                 else if (typeof data === "object" && data.status === "ready_for_question") {
@@ -792,6 +808,7 @@
             });
 
         window.addEventListener("unload", sendClearMessage);
+        window.addEventListener("beforeunload", sendClearMessage);
 
     </script>
 
