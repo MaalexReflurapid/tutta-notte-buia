@@ -444,18 +444,18 @@
                 }, 3000);
             }
         
-            function goToPreQuestion() {
-                document.getElementById("processingSection").classList.add("fade-out");
+        function goToPreQuestion() {
+            document.getElementById("processingSection").classList.add("fade-out");
 
-                setTimeout(() => {
-                    document.getElementById("processingSection").style.display = "none";
-                    document.getElementById("preQuestionScreen").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("processingSection").style.display = "none";
+                document.getElementById("preQuestionScreen").style.display = "block";
 
-                    // ⏳ Dopo 20 secondi → chiama goToQuestion()
-                    setTimeout(goToQuestion, 20000);
+                // ⏳ Dopo 20 secondi → chiama goToQuestion()
+                setTimeout(goToQuestion, 40000);
 
-                }, 3000); // attesa dopo il fade-out del processing
-            }
+            }, 3000); // attesa dopo il fade-out del processing
+        }
 
 
         function goToQuestion() {
@@ -661,7 +661,7 @@
                     setTimeout(() => {
                         document.getElementById("notForgottenScreen").classList.add("fade-out");
                         setTimeout(showThankYouPage, 3000); // aspetta che il fade-out finisca
-                    }, 15000);
+                    }, 25000);
 
                 }, 3000); // attesa per fade-out canvas
             }
@@ -682,7 +682,7 @@
                     // Attendi 5s di buio prima del reindirizzamento
                     setTimeout(() => {
                         window.location.href = "https://martypizzi98.wixsite.com/maalex-reflurapid";
-                    }, 10000);
+                    }, 5000);
 
                 }, 10000); // dopo 10s di messaggio visibile
                 
@@ -747,7 +747,9 @@
                 }
                 
                 else if (typeof data === "object" && data.status === "ready_for_question") {
-                    goToPreQuestion();
+                    setTimeout(() => {
+                        goToPreQuestion();
+                    }, 3000); 
                 }
             };
 
