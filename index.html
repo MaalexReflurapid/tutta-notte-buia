@@ -64,6 +64,7 @@
             padding: 10px;
             font-size: 18px;
             margin: none;
+            margin-bottom: 20px;
             border: none;
             border-bottom: 1px solid white;
             background: black;
@@ -74,6 +75,7 @@
 
         input:focus {
             outline: none;
+            background-color: black;
         }
 
         /* Sections */
@@ -92,10 +94,16 @@
         #formSection,
         #processingSection,
         #questionSection,
-        #canvasSection,
         #thankYouSection {
             display: none;
             position: relative;
+            margin-top: 10vh;
+        }
+
+        #canvasSection {
+            display: none;
+            position: relative;
+            margin-top: -30px;
         }
 
         #rotateMessage {
@@ -204,8 +212,8 @@
             background-color: black;
             width: 80%;
             height: 80%;
-            touch-action: none;
-            /* Prevents scrolling while drawing */
+            touch-action: none; /* Prevents scrolling while drawing */
+            border-bottom: 1px solid white;
         }
     </style>
 </head>
@@ -238,16 +246,22 @@
     <!-- Name, Surname, Email Form -->
     <div id="formSection">
         <form id="userForm">
-            <h1>Name <input type="text" class="fade-in" id="firstName" name="firstName" placeholder="" required>
-            </h1>
-
-            <h1>Surname <input type="text" class="fade-in" id="lastName" name="lastName" placeholder="" required>
-            </h1>
-
-            <h1>Email <input type="email" class="fade-in" id="email" name="email" placeholder="" required></h1>
+    
+            <h1>Name</h1>
+            <input type="text" class="fade-in" id="firstName" name="firstName" required>
+    
+            <h1>Surname</h1>
+            <input type="text" class="fade-in" id="lastName" name="lastName" required>
+    
+            <h1>Email</h1>
+            <input type="email" class="fade-in" id="email" name="email" required>
+    
+            <div class="form-button">
+                <button type="button" class="fade-in" onclick="validateForm()">Send</button>    
+            </div>
         </form>
-        <button type="button" class="fade-in" onclick="validateForm()">Send</button>
     </div>
+      
 
     <!-- Processing Section -->
     <div id="processingSection" style="display: none;">
@@ -263,8 +277,10 @@
     <!-- Question Section -->
     <div id="questionSection" style="display: none;">
         <h1>Do you want to be forgotten?</h1>
-        <button type="button" class="fade-in" onclick="answerYes()">Yes</button>
-        <button type="button" class="fade-in" onclick="answerNo()">No</button>
+        <div class="question-button">
+            <button type="button" class="fade-in" onclick="answerYes()">Yes</button>
+            <button type="button" class="fade-in" onclick="answerNo()">No</button>
+        </div>    
     </div>
 
     <!-- No to Contract Screen -->
@@ -277,8 +293,10 @@
         <h1 id="drawTitle" class="fade-in">Sign here:</h1>
         <div id="canvas_div">
             <canvas id="canvas" class="fade-in"></canvas>
-            <button type="button" class="fade-in" onclick="clearCanvas()">Clear</button>
-            <button type="button" class="fade-in" id="submitDrawingBtn" onclick="submitDrawing()" disabled class="fade-in">Sign</button>
+            <div class="canvas-button">
+                <button type="button" class="fade-in" onclick="clearCanvas()">Clear</button>
+                <button type="button" class="fade-in" id="submitDrawingBtn" onclick="submitDrawing()">Sign</button>
+            </div>
         </div>
     </div>
 
@@ -292,11 +310,16 @@
         <h1>Tutta Notte Buia</h1>
     </div>
 
+    <video id="wakelockVideo" playsinline muted autoplay loop style="display: none;">
+        <source src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQxaXNvbTEybXA0MQAAACBtZGF0AAAAAQAAAAAAAAAAAAAA">
+    </video>
+
     <script>
         // Initialize WebSocket connection and Page
         let ws;
         let isPromotedClient = false;
         let redirectTimerQueued = null;
+        let wakeLock = null;
 
         function initializePage() {
             document.getElementById("queueMessage").style.display = "flex";
@@ -309,6 +332,30 @@
 
             connectWebSocket();
         }
+
+        async function requestWakeLock() {
+                try {
+                    wakeLock = await navigator.wakeLock.request("screen");
+                    console.log("Wake Lock attivo");
+
+                    // Rinnova se viene rilasciato
+                    wakeLock.addEventListener("release", () => {
+                        console.log("Wake Lock rilasciato");
+                    });
+                } catch (err) {
+                    console.error(`Wake Lock fallito: ${err.name}, ${err.message}`);
+                }
+            }
+        function startFallbackVideo() {
+                const video = document.getElementById("wakelockVideo");
+                if (video) {
+                    video.play().then(() => {
+                        console.log("🎥 Fallback video playing (iOS Wake Lock)");
+                    }).catch((err) => {
+                        console.warn("⚠️ Fallback video failed:", err);
+                    });
+                }
+            }
 
         // Initialize Particles.js
         particlesJS("particles-js", {
@@ -716,7 +763,15 @@
                         redirectTimerQueued = null;
                         console.log(" Reindirizzamento da 'queued' annullato: client promosso");
                     }
+
                     isPromotedClient = true;  // Client promosso
+                    if ('wakeLock' in navigator) {
+                        requestWakeLock().catch(() => {
+                            startFallbackVideo(); // fallback se la wake lock fallisce
+                        });
+                    } else {
+                        startFallbackVideo(); // fallback diretto se la wake lock non è supportata
+                    }
                     
                     const message = {
                         action: "user_connected"
@@ -747,9 +802,11 @@
                 }
                 
                 else if (typeof data === "object" && data.status === "ready_for_question") {
-                    setTimeout(() => {
-                        goToPreQuestion();
-                    }, 3000); 
+                    if (isPromotedClient) {
+                        setTimeout(() => {
+                            goToPreQuestion();
+                        }, 3000);
+                    }
                 }
             };
 
@@ -784,6 +841,9 @@
             if (!document.hidden && localStorage.getItem("wasHidden") === "true") {
                 localStorage.removeItem("wasHidden");
                 // location.reload(); // opzionale, se vuoi ricaricare
+            }
+            if (document.visibilityState === "visible" && 'wakeLock' in navigator) {
+                requestWakeLock();
             }
         });
 
