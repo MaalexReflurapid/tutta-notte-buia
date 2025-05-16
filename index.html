@@ -90,20 +90,24 @@
         }
 
         #infoScreen,
-        #transitionScreen,
-        #formSection,
-        #processingSection,
+        #transitionScreen, 
         #questionSection,
         #thankYouSection {
             display: none;
             position: relative;
-            margin-top: 10vh;
+            margin-top: 20vh;
         }
 
-        #canvasSection {
+        #processingSection {
             display: none;
             position: relative;
-            margin-top: -30px;
+            margin-top: -40px;
+        }
+
+        #canvasSection, #formSection {
+            display: none;
+            position: relative;
+            margin-top: -40px;
         }
 
         #rotateMessage {
@@ -368,7 +372,7 @@
                 "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true, "straight": false, "out_mode": "out" },
                 "line_linked": { "enable": false }
             },
-            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true }, "onclick": { "enable": true }, "ontouch": { "enable": true } } },
+            "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false }, "ontouch": { "enable": false } } },
             "retina_detect": true
         });
 
@@ -498,7 +502,7 @@
                 document.getElementById("processingSection").style.display = "none";
                 document.getElementById("preQuestionScreen").style.display = "block";
 
-                // ⏳ Dopo 20 secondi → chiama goToQuestion()
+                // ⏳ Dopo 40 secondi → chiama goToQuestion()
                 setTimeout(goToQuestion, 40000);
 
             }, 3000); // attesa dopo il fade-out del processing
