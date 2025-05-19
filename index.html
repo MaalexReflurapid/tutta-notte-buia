@@ -858,6 +858,44 @@
             };
         }
 
+        let clearHiddenTimer = null;
+        let clearAlreadySent = false;
+
+        function sendClearMessage() {
+            if (!isPromotedClient || clearAlreadySent) return;
+            clearAlreadySent = true;
+
+            const message = { action: "clear_variable" };
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+                console.log("🧼 clear_variable inviato");
+            } else {
+                console.warn("❌ WebSocket chiuso. clear_variable non inviato.");
+            }
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden" && isPromotedClient) {
+                console.log("📥 Scheda in background. Avvio timer di 30s per inviare clear_variable...");
+                clearHiddenTimer = setTimeout(() => {
+                    console.log("⏳ 30s trascorsi. Invio clear_variable.");
+                    sendClearMessage();
+                }, 30000);
+            } else if (document.visibilityState === "visible") {
+                if (clearHiddenTimer) {
+                    clearTimeout(clearHiddenTimer);
+                    clearHiddenTimer = null;
+                    console.log("🔙 Utente tornato. Timer annullato.");
+                }
+            }
+        });
+
+        // Backup extra su unload/pagehide
+        window.addEventListener("pagehide", sendClearMessage);
+        window.addEventListener("unload", sendClearMessage);
+        window.addEventListener("beforeunload", sendClearMessage);
+
+
         let inactivityTimeout;
 
         function resetInactivityTimer() {
