@@ -59,7 +59,7 @@
 
     </style>
 </head>
-<body class="bg-black text-white font-mono overflow-hidden mt-[10vh] text-center" onload="getUserInfo(),initializePage()">
+<body class="bg-black text-white font-mono overflow-hidden mt-[10vh] text-center" onload="showPhoneWarning(),initializePage()">
 
 <div id="particles-js"></div>
 
@@ -70,6 +70,10 @@
 
     <div id="rotateMessage" class="fade-in-up font-[Satoshi] hidden absolute inset-0 bg-black/70 text-white flex justify-center items-center text-xl z-20">
       <p>Please rotate your device to continue</p>
+    </div>
+
+    <div id="phoneWarningScreen" class="hidden fade-in-up font-[Satoshi] text-[150%] mt-[20vh] text-center">
+        <h1>Please keep your phone active<br />at all times during the experience</h1>
     </div>
 
     <div id="infoScreen" class="hidden mt-[20vh]">
@@ -134,12 +138,17 @@
       <h1 class="fade-in-up font-[Satoshi] text-[150%]">Here, nobody is ever truly forgotten</h1>
     </div>
 
+    <div id="emailNoticeScreen" class="hidden mt-[20vh]">
+        <h1 class="fade-in-up font-[Satoshi] text-[150%]">Something is waiting in your emails</h1>
+        <p class="fade-in-up font-[Satoshi] text-[100%]">Please also check your spam folder</p>
+    </div>
+
     <div id="thankYouSection" class="hidden mt-[20vh]">
       <h1 class="fade-in-up font-[Satoshi] text-[150%]">Tutta Notte Buia</h1>
     </div>
 
-    <video id="wakelockVideo" playsinline muted autoplay loop class="position: fixed; bottom: 10px; left: 10px; width: 120px; opacity: 0.2; z-index: 9999;">
-      <source src="https://www.w3schools.com/html/mov_bbb.mp4">  <!--  data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQxaXNvbTEybXA0MQAAACBtZGF0AAAAAQAAAAAAAAAAAAAA -->
+    <video id="wakelockVideo" playsinline muted autoplay loop class="hidden">
+      <source src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQxaXNvbTEybXA0MQAAACBtZGF0AAAAAQAAAAAAAAAAAAAA">  <!-- https://www.w3schools.com/html/mov_bbb.mp4 -->
     </video>
 
     <script>
@@ -182,40 +191,28 @@
         let fallbackRetryInterval = null;
 
         function startFallbackVideo() {
-            console.log("▶️ startFallbackVideo chiamato");
             const video = document.getElementById("wakelockVideo");
-
             if (!video) return;
 
-            // Mostra il video in debug se serve
-            // video.classList.remove("hidden");
+            function tryPlay() {
+                if (!video.paused) {
+                    clearInterval(fallbackRetryInterval);
+                    return;
+                }
 
-            // Play solo dopo interazione utente (autoplay iOS workaround)
-        
-        function tryPlay() {
-            if (!video.paused) {
-                console.log("🎬 Video già in riproduzione");
-                clearInterval(fallbackRetryInterval); // interrompi i retry
-                return;
+                const playAttempt = video.play();
+                if (playAttempt !== undefined) {
+                    playAttempt.then(() => {
+                        clearInterval(fallbackRetryInterval);
+                    }).catch(() => {
+                        // Silenzioso: nessun log
+                    });
+                }
             }
 
-            const playAttempt = video.play();
-            if (playAttempt !== undefined) {
-                playAttempt.then(() => {
-                    console.log("🎥 Fallback video playing");
-                    clearInterval(fallbackRetryInterval); // successo → interrompi retry
-                }).catch((err) => {
-                    console.warn("⏳ Retry fallback video (bloccato):", err.name);
-                });
-            }
+            tryPlay();
+            fallbackRetryInterval = setInterval(tryPlay, 2000);
         }
-
-    // prova subito una volta
-    tryPlay();
-
-    // riprova ogni 2 secondi fino a quando parte
-    fallbackRetryInterval = setInterval(tryPlay, 2000);
-}
 
         // Initialize Particles.js
         particlesJS("particles-js", {
@@ -241,8 +238,28 @@
             }
         }
 
+        function showPhoneWarning() {
+            const warning = document.getElementById("phoneWarningScreen");
+            warning.style.display = "block";
+            warning.classList.add("fade-in");
+
+            setTimeout(() => {
+                warning.classList.remove("fade-in"); // rimuovi l'ingresso
+                warning.classList.add("fade-out");
+
+                warning.addEventListener("animationend", function handleFadeOut() {
+                    warning.removeEventListener("animationend", handleFadeOut); // cleanup
+                    warning.style.display = "none";
+                    getUserInfo(); // chiamato solo dopo che l'animazione è davvero finita
+                });
+            }, 7000);
+        }
+
+
         function getUserInfo() {
+            document.getElementById("infoScreen").style.display = "block";
             document.getElementById("infoScreen").classList.add("fade-in");
+
             const lang = navigator.language || navigator.userLanguage;
             const baseLang = lang.split("-")[0];
 
@@ -280,6 +297,11 @@
 
             const altGreeting = greetings[baseLang] || "hello";
             document.getElementById("welcomeMessage").innerHTML = `Hi... or should I say <span style="font-style: italic;">${altGreeting}</span>?`;
+            // ⏳ Attendi prima di passare alla schermata successiva
+            
+            setTimeout(() => {
+                TransitionScreen();
+            }, 5000); // 5 secondi (modificabile)
         }
 
         function TransitionScreen() {
@@ -586,37 +608,52 @@
 
                     // Dopo 15s → passa alla Thank You
                     setTimeout(() => {
-                        document.getElementById("notForgottenScreen").classList.add("fade-out");
-                        setTimeout(showThankYouPage, 3000); // aspetta che il fade-out finisca
+                        goToEmailNotice();
                     }, 25000);
 
                 }, 3000); // attesa per fade-out canvas
             }
+            
+        
+        function goToEmailNotice() {
+            document.getElementById("notForgottenScreen").classList.add("fade-out");
+
+            setTimeout(() => {
+                document.getElementById("notForgottenScreen").style.display = "none";
+                document.getElementById("emailNoticeScreen").style.display = "block";
+
+                // Dopo 10s → passa alla Thank You
+                setTimeout(() => {
+                    document.getElementById("emailNoticeScreen").classList.add("fade-out");
+                    setTimeout(showThankYouPage, 3000);
+                }, 10000);
+            }, 3000); // attende il fade-out
+        }
 
         function showThankYouPage() {
-                /*document.getElementById("canvasSection").style.display = "none";*/
-                document.getElementById("notForgottenScreen").style.display = "none";
-                document.getElementById("noToContractScreen").style.display = "none";
+            /*document.getElementById("canvasSection").style.display = "none";*/
+            document.getElementById("goToEmailNotice").style.display = "none";
+            document.getElementById("noToContractScreen").style.display = "none";
 
-                const thankYou = document.getElementById("thankYouSection");
-                const particles = document.getElementById("particles-js");
+            const thankYou = document.getElementById("thankYouSection");
+            const particles = document.getElementById("particles-js");
 
-                // Mostra la sezione finale
-                thankYou.style.display = "block";
+            // Mostra la sezione finale
+            thankYou.style.display = "block";
 
-                // Dopo un po', esegui il fade-out del testo e del particellare
+            // Dopo un po', esegui il fade-out del testo e del particellare
+            setTimeout(() => {
+                thankYou.classList.add("fade-out");
+                particles.classList.add("fade-out");
+
+                // Attendi 5s di buio prima del reindirizzamento
                 setTimeout(() => {
-                    thankYou.classList.add("fade-out");
-                    particles.classList.add("fade-out");
+                    window.location.href = "https://linktr.ee/maalex_reflurapid";
+                }, 5000);
 
-                    // Attendi 5s di buio prima del reindirizzamento
-                    setTimeout(() => {
-                        window.location.href = "https://linktr.ee/maalex_reflurapid";
-                    }, 5000);
-
-                }, 10000); // dopo 10s di messaggio visibile
-                
-            }
+            }, 10000); // dopo 10s di messaggio visibile
+            
+        }
 
         let hasHandledConnected = false;
         let hasHandledQueued = false;
@@ -671,16 +708,13 @@
                     console.log("Messaggio inviato a Python: user_connected");
 
                     document.getElementById("queueMessage").style.display = "none";
-                    document.getElementById("infoScreen").style.display = "block";
-
-                    //  Avvia la transizione dopo 5 secondi
-                    setTimeout(() => {TransitionScreen();}, 5000);
+                    showPhoneWarning()
 
                 } else if ((data === "queued" || (typeof data === "object" && data.status === "queued")) && !hasHandledQueued) {
                     hasHandledQueued = true;   // per attivare gli eventi relativi a questo messaggio solo una volta
                     isPromotedClient = false;  // Non è il client attivo
                     document.getElementById("queueMessage").style.display = "block";
-                    document.getElementById("infoScreen").style.display = "none";
+                    document.getElementById("showPhoneWarning").style.display = "none";
 
                     //  Dopo 10 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
@@ -781,9 +815,9 @@
         
         function showOnly(sectionId) {
             const allSections = [
-                "queueMessage", "infoScreen", "transitionScreen", "formSection",
+                "queueMessage", "showPhoneWarning", "infoScreen", "transitionScreen", "formSection",
                 "processingSection", "preQuestionScreen", "questionSection",
-                "noToContractScreen", "canvasSection", "notForgottenScreen", "thankYouSection"
+                "noToContractScreen", "canvasSection", "notForgottenScreen", "emailNoticeScreen", "thankYouSection"
             ];
 
             allSections.forEach(id => {
