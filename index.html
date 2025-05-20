@@ -139,7 +139,7 @@
     </div>
 
     <video id="wakelockVideo" playsinline muted autoplay loop class="position: fixed; bottom: 10px; left: 10px; width: 120px; opacity: 0.2; z-index: 9999;">
-      <source src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQxaXNvbTEybXA0MQAAACBtZGF0AAAAAQAAAAAAAAAAAAAA">
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4">  <!--  data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQxaXNvbTEybXA0MQAAACBtZGF0AAAAAQAAAAAAAAAAAAAA -->
     </video>
 
     <script>
@@ -178,6 +178,8 @@
                 }
 
             }
+        
+        let fallbackRetryInterval = null;
 
         function startFallbackVideo() {
             console.log("▶️ startFallbackVideo chiamato");
@@ -189,21 +191,31 @@
             // video.classList.remove("hidden");
 
             // Play solo dopo interazione utente (autoplay iOS workaround)
-            console.log("▶️ Stato video: paused =", video.paused);
-            if (video.paused) {
-                const playAttempt = video.play();
-                if (playAttempt !== undefined) {
-                    playAttempt.then(() => {
-                        console.log("Fallback video playing (iOS wake lock workaround)");
-                    }).catch((err) => {
-                        console.warn("Fallback video play blocked:", err);
-                    });
-            } else {
-                console.warn("⚠️ play() non ha restituito nulla");
+        
+        function tryPlay() {
+            if (!video.paused) {
+                console.log("🎬 Video già in riproduzione");
+                clearInterval(fallbackRetryInterval); // interrompi i retry
+                return;
             }
-                
+
+            const playAttempt = video.play();
+            if (playAttempt !== undefined) {
+                playAttempt.then(() => {
+                    console.log("🎥 Fallback video playing");
+                    clearInterval(fallbackRetryInterval); // successo → interrompi retry
+                }).catch((err) => {
+                    console.warn("⏳ Retry fallback video (bloccato):", err.name);
+                });
             }
         }
+
+    // prova subito una volta
+    tryPlay();
+
+    // riprova ogni 2 secondi fino a quando parte
+    fallbackRetryInterval = setInterval(tryPlay, 2000);
+}
 
         // Initialize Particles.js
         particlesJS("particles-js", {
