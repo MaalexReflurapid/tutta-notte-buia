@@ -455,7 +455,7 @@
                     // Dopo 15s → passa alla Thank You
                     setTimeout(() => {
                         goToEmailNotice();
-                    }, 25000);
+                    }, 10000);
 
                 }, 3000); // attesa per fade-out canvas
             }
@@ -478,7 +478,7 @@
 
         function showThankYouPage() {
             /*document.getElementById("canvasSection").style.display = "none";*/
-            document.getElementById("goToEmailNotice").style.display = "none";
+            document.getElementById("emailNoticeScreen").style.display = "none";
             document.getElementById("noToContractScreen").style.display = "none";
 
             const thankYou = document.getElementById("thankYouSection");
@@ -497,7 +497,7 @@
                     window.location.href = "https://linktr.ee/maalex_reflurapid";
                 }, 5000);
 
-            }, 10000); // dopo 10s di messaggio visibile
+            }, 15000); // dopo 10s di messaggio visibile
             
         }
 
