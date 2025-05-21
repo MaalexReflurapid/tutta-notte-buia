@@ -412,6 +412,7 @@
             const canvas = document.getElementById("canvas");
             // Ottieni l'immagine in formato base64
             const dataURL = processSignatureCanvas(canvas);
+            submitBtn.disabled = true;
 
             // Costruisci il payload includendo i dati della firma
             const drawingData = {
