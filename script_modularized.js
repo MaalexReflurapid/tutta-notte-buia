@@ -227,8 +227,8 @@
                 document.getElementById("processingSection").style.display = "none";
                 document.getElementById("preQuestionScreen").style.display = "block";
 
-                // ⏳ Dopo 40 secondi → chiama goToQuestion()
-                setTimeout(goToQuestion, 40000);
+                // ⏳ Dopo 50 secondi → chiama goToQuestion()
+                setTimeout(goToQuestion, 50000);
 
             }, 3000); // attesa dopo il fade-out del processing
         }
@@ -293,9 +293,9 @@
                     setTimeout(() => {
                         document.getElementById("noToContractScreen").classList.add("fade-out");
                         setTimeout(showThankYouPage, 3000);
-                    }, 8000);
+                    }, 10000);
 
-                }, 8000);
+                }, 3000);
             }
 
         function goToCanvas() {
@@ -497,7 +497,7 @@
                     window.location.href = "https://linktr.ee/maalex_reflurapid";
                 }, 5000);
 
-            }, 15000); // dopo 10s di messaggio visibile
+            }, 15000); // dopo 15s di messaggio visibile
             
         }
 
@@ -570,7 +570,7 @@
                     //  Dopo 10 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
                         window.location.href = "https://linktr.ee/maalex_reflurapid";
-                    }, 20000);
+                    }, 15000);
                 }
                 
                 else if (typeof data === "object" && data.status === "ready_for_question" && !hasHandledReadyForQuestion) {
