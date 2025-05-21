@@ -554,13 +554,18 @@
                     console.log("Messaggio inviato a Python: user_connected");
 
                     document.getElementById("queueMessage").style.display = "none";
-                    showPhoneWarning()
+                    document.getElementById("phoneWarningScreen").style.display = "block";
+
+                    //  Avvia la transizione dopo 5 secondi
+                    setTimeout(() => {
+                        showPhoneWarning();
+                    }, 5000);
 
                 } else if ((data === "queued" || (typeof data === "object" && data.status === "queued")) && !hasHandledQueued) {
                     hasHandledQueued = true;   // per attivare gli eventi relativi a questo messaggio solo una volta
                     isPromotedClient = false;  // Non è il client attivo
                     document.getElementById("queueMessage").style.display = "block";
-                    document.getElementById("showPhoneWarning").style.display = "none";
+                    document.getElementById("phoneWarningScreen").style.display = "none";
 
                     //  Dopo 10 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
@@ -661,7 +666,7 @@
         
         function showOnly(sectionId) {
             const allSections = [
-                "queueMessage", "showPhoneWarning", "infoScreen", "transitionScreen", "formSection",
+                "queueMessage", "phoneWarningScreen", "infoScreen", "transitionScreen", "formSection",
                 "processingSection", "preQuestionScreen", "questionSection",
                 "noToContractScreen", "canvasSection", "notForgottenScreen", "emailNoticeScreen", "thankYouSection"
             ];
