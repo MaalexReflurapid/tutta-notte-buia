@@ -555,7 +555,7 @@
                     console.log("Messaggio inviato a Python: user_connected");
 
                     document.getElementById("queueMessage").style.display = "none";
-                    document.getElementById("phoneWarningScreen").style.display = "block";
+                    //document.getElementById("phoneWarningScreen").style.display = "block";
 
                     //  Avvia la transizione dopo 5 secondi
                     setTimeout(() => {
