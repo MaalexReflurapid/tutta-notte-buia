@@ -412,7 +412,6 @@
             const canvas = document.getElementById("canvas");
             // Ottieni l'immagine in formato base64
             const dataURL = processSignatureCanvas(canvas);
-            submitBtn.disabled = true;
 
             // Costruisci il payload includendo i dati della firma
             const drawingData = {
@@ -560,7 +559,7 @@
                     //  Avvia la transizione dopo 5 secondi
                     setTimeout(() => {
                         showPhoneWarning();
-                    }, 5000);
+                    }, 2000);
 
                 } else if ((data === "queued" || (typeof data === "object" && data.status === "queued")) && !hasHandledQueued) {
                     hasHandledQueued = true;   // per attivare gli eventi relativi a questo messaggio solo una volta
