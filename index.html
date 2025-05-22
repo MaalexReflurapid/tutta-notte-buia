@@ -18,6 +18,7 @@
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     .fade-in-up {
       opacity: 0;
       animation: fadeInUp 3s ease-out forwards;
@@ -54,10 +55,9 @@
       transition: opacity 3s ease-in;
     }
 
-    .queue-container {
+    .text-container {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       display: flex;
@@ -65,22 +65,19 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      z-index: 10;
       padding: 1rem;
     }
 
     .queue-center {
       margin-bottom: 3rem;
     }
-  </style>
+</style>
+
 </head>
-
-<!-- Truncated for brevity — beginning unchanged -->
-
 <body class="bg-black text-white font-mono overflow-hidden text-center touch-manipulation select-none" onload="initializePage()">
   <div id="particles-js"></div>
 
-  <div id="queueMessage" class="hidden queue-container">
+  <div id="queueMessage" class="hidden text-container z-10">
     <div class="queue-center">
       <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">It's not your time yet</h1>
       <p class="fade-in-up font-[Satoshi] text-sm sm:text-base mt-2">
@@ -94,58 +91,57 @@
     <p>Please rotate your device to continue</p>
   </div>
 
-  <div id="phoneWarningScreen" class="hidden fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl flex flex-col justify-center items-center h-screen text-center px-4">
+  <div id="phoneWarningScreen" class="hidden text-container fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">
     <h1>Please keep your phone <br /> active at all times <br /> during the experience</h1>
   </div>
 
-  <div id="infoScreen" class="hidden mt-[20vh] px-4">
+  <div id="infoScreen" class="hidden text-container">
     <h1 id="welcomeMessage" class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Hi...</h1>
   </div>
 
-  <div id="transitionScreen" class="hidden mt-[20vh] px-4">
+  <div id="transitionScreen" class="hidden text-container">
     <h1 id="transitionLine" class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Who is this?</h1>
   </div>
 
   <div id="formSection" class="hidden px-4 mt-[20vh]">
     <form id="userForm" class="w-full max-w-md mx-auto flex flex-col items-center space-y-6">
-      <!-- form fields unchanged -->
     </form>
   </div>
 
-  <div id="processingSection" class="hidden mt-[20vh] px-4">
-    <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">I am looking for you</h1>
-    <p class="fade-in-up font-[Satoshi] text-sm sm:text-base">Please keep this page open</p>
-  </div>
-
-  <div id="preQuestionScreen" class="hidden mt-[20vh] px-4">
-    <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">There you are</h1>
-  </div>
-
-  <div id="questionSection" class="hidden mt-[20vh] px-4">
-    <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Do you want to be forgotten?</h1>
-    <div class="flex justify-center space-x-4 mt-4">
-      <!-- buttons unchanged -->
+  <div id="processingSection" class="hidden text-container z-10">
+    <div class="queue-center">
+      <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">I am looking for you</h1>
+      <p class="fade-in-up font-[Satoshi] text-sm sm:text-base">Please keep this page open</p>
     </div>
   </div>
 
-  <div id="noToContractScreen" class="hidden mt-[20vh] px-4">
+  <div id="preQuestionScreen" class="hidden text-container">
+    <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">There you are</h1>
+  </div>
+
+  <div id="questionSection" class="hidden text-container">
+    <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Do you want to be forgotten?</h1>
+    <div class="flex justify-center space-x-4 mt-4">
+    </div>
+  </div>
+
+  <div id="noToContractScreen" class="hidden text-container">
     <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Your data will live forever</h1>
   </div>
 
   <div id="canvasSection" class="hidden mt-[10vh]">
-    <!-- canvas content unchanged -->
   </div>
 
-  <div id="notForgottenScreen" class="hidden mt-[20vh] px-4">
+  <div id="notForgottenScreen" class="hidden text-container">
     <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Here, nobody is ever truly forgotten</h1>
   </div>
 
-  <div id="emailNoticeScreen" class="hidden mt-[20vh] px-4">
+  <div id="emailNoticeScreen" class="hidden text-container">
     <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Something is waiting in your emails</h1>
     <p class="fade-in-up font-[Satoshi] text-sm sm:text-base">Please check also your spam folder</p>
   </div>
 
-  <div id="thankYouSection" class="hidden mt-[20vh] px-4">
+  <div id="thankYouSection" class="hidden text-container">
     <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Tutta Notte Buia</h1>
   </div>
 
@@ -156,4 +152,3 @@
   <script src="script_modularized.js"></script>
 </body>
 </html>
-
