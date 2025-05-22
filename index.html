@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutta Notte Buia - MAalex</title>
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -72,13 +72,6 @@
     .queue-center {
       margin-bottom: 3rem;
     }
-
-    .queue-bottom {
-      position: absolute;
-      bottom: 2rem;
-      font-size: 0.9rem;
-      opacity: 0.6;
-    }
   </style>
 </head>
 
@@ -92,9 +85,6 @@
         The server is restarting or <br />
         somebody else is experiencing the artwork
       </p>
-    </div>
-    <div class="queue-bottom fade-in-up font-[Satoshi] text-xs sm:text-sm">
-      Please keep your phone active at all times during the experience
     </div>
   </div>
 
@@ -114,8 +104,8 @@
     <h1 id="transitionLine" class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">Who is this?</h1>
   </div>
 
-  <div id="formSection" class="hidden flex flex-col justify-center items-center h-screen px-4">
-    <form id="userForm" class="w-full max-w-md flex flex-col items-center space-y-6">
+  <div id="formSection" class="hidden px-4 mt-[20vh]">
+    <form id="userForm" class="w-full max-w-md mx-auto flex flex-col items-center space-y-6">
       <div>
         <h1 class="fade-in-up font-[Satoshi] text-2xl">Name</h1>
         <input id="firstName" name="firstName" required type="text" class="fade-in-up bg-transparent border-b border-white text-white text-lg p-2 focus:outline-none w-full" />
@@ -132,7 +122,7 @@
     </form>
   </div>
 
-  <div id="processingSection" class="hidden flex flex-col justify-center items-center h-screen px-4">
+  <div id="processingSection" class="hidden mt-[20vh] px-4">
     <h1 class="fade-in-up font-[Satoshi] text-xl sm:text-2xl md:text-3xl">I am looking for you</h1>
     <p class="fade-in-up font-[Satoshi] text-sm sm:text-base">Please keep this page open</p>
   </div>
