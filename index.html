@@ -11,6 +11,7 @@
 
         @font-face {
             font-family: "Satoshi";
+            
             font-weight: 100;
             src: url("./font/Satoshi-Variable.ttf") format("truetype");
         }
@@ -63,88 +64,92 @@
 
 <div id="particles-js"></div>
 
-    <div id="queueMessage" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">It's not your time yet</h1>
-      <p class="fade-in-up font-[Satoshi] text-[100%]">The server is restarting or <br />somebody else is experiencing the artwork</p>
+    <div id="queueMessage" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">It's not your time yet</h1>
+      <p class="fade-in-up font-[Satoshi] text-[150%]">The server is restarting or <br />somebody else is experiencing the artwork</p>
     </div>
 
-    <div id="rotateMessage" class="fade-in-up font-[Satoshi] hidden absolute inset-0 bg-black/70 text-white flex justify-center items-center text-xl z-20">
+    <div id="rotateMessage" class="fade-in-up font-[Satoshi] text-[150%] hidden absolute inset-0 bg-black/70 text-white flex justify-center items-center text-xl z-20">
       <p>Please rotate your device to continue</p>
     </div>
 
-    <div id="phoneWarningScreen" class="hidden fade-in-up font-[Satoshi] text-[150%] mt-[20vh] text-center">
-        <h1>Please keep your phone <br /> active at all times <br /> during the experience</h1>
+    <div id="phoneWarningScreen" class="hidden">
+        <h1 class="fade-in-up font-[Satoshi] text-[200%] mt-[20vh] text-center">Please keep the device <br /> active at all times <br /> during the experience</h1>
+        <div class="flex justify-center mt-10">
+          <button type="button"
+          onclick="proceedFromPhoneWarning()" class="fade-in-up font-[Satoshi] text-[150%] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition">Continue</button>
+        </div>
     </div>
 
-    <div id="infoScreen" class="hidden mt-[20vh]">
-      <h1 id="welcomeMessage" class="fade-in-up font-[Satoshi] text-[150%]">Hi...</h1>
+    <div id="infoScreen" class="hidden mt-[30vh]">
+      <h1 id="welcomeMessage" class="fade-in-up font-[Satoshi] text-[200%]">Hi...</h1>
     </div>
 
-    <div id="transitionScreen" class="hidden mt-[20vh]">
-      <h1 id="transitionLine" class="fade-in-up font-[Satoshi] text-[150%]">Who is this?</h1>
+    <div id="transitionScreen" class="hidden mt-[30vh]">
+      <h1 id="transitionLine" class="fade-in-up font-[Satoshi] text-[200%]">Who is this?</h1>
     </div>
 
     <div id="formSection" class="hidden mt-[20vh]">
-      <form id="userForm" class="flex flex-col items-center space-y-6">
+      <form id="userForm" class="flex flex-col items-center space-y-10">
         <div>
-          <h1 class="fade-in-up font-[Satoshi] text-2xl">Name</h1>
+          <h1 class="fade-in-up font-[Satoshi] text-[200%] text-2xl">Name</h1>
           <input id="firstName" name="firstName" required type="text" class="fade-in-up bg-transparent border-b border-white text-white text-lg p-2 focus:outline-none" />
         </div>
         <div>
-          <h1 class="fade-in-up font-[Satoshi] text-2xl">Surname</h1>
+          <h1 class="fade-in-up font-[Satoshi] text-[200%] text-2xl">Surname</h1>
           <input id="lastName" name="lastName" required type="text" class="fade-in-up bg-transparent border-b border-white text-white text-lg p-2 focus:outline-none" />
         </div>
         <div>
-          <h1 class="fade-in-up font-[Satoshi] text-2xl">Email</h1>
+          <h1 class="fade-in-up font-[Satoshi] text-[200%] text-2xl">Email</h1>
           <input id="email" name="email" required type="email" class="fade-in-up bg-transparent border-b border-white text-white text-lg p-2 focus:outline-none" />
         </div>
-        <button type="button" onclick="validateForm()" class="fade-in-up font-[Satoshi] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition">Send</button>
+        <button type="button" onclick="validateForm()" class="fade-in-up font-[Satoshi] text-[150%] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition">Send</button>
       </form>
     </div>
 
-    <div id="processingSection" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">I am looking for you</h1>
-      <p class="fade-in-up font-[Satoshi] text-[100%]">Please keep this page open</p>
+    <div id="processingSection" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">I am looking for you</h1>
+      <p class="fade-in-up font-[Satoshi] text-[150%]">Please keep this page open</p>
     </div>
 
-    <div id="preQuestionScreen" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">There you are</h1>
+    <div id="preQuestionScreen" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">There you are</h1>
     </div>
 
-    <div id="questionSection" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">Do you want to be forgotten?</h1>
-      <div class="flex justify-center space-x-4 mt-4">
-        <button type="button" class="fade-in-up font-[Satoshi] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="answerYes()">Yes</button>
-        <button type="button" class="fade-in-up font-[Satoshi] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="answerNo()">No</button>
+    <div id="questionSection" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">Do you want to be forgotten?</h1>
+      <div class="flex justify-center space-x-10 mt-10">
+        <button type="button" class="fade-in-up font-[Satoshi] text-[150%] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="answerYes()">Yes</button>
+        <button type="button" class="fade-in-up font-[Satoshi] text-[150%] bg-black text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="answerNo()">No</button>
       </div>
     </div>
 
-    <div id="noToContractScreen" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">Your data will live forever</h1>
+    <div id="noToContractScreen" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">Your data will live forever</h1>
     </div>
 
     <div id="canvasSection" class="hidden mt-[10vh]">
-      <h1 id="drawTitle" class="fade-in-up font-[Satoshi] text-[150%]">Sign here:</h1>
+      <h1 id="drawTitle" class="fade-in-up font-[Satoshi] text-[200%]">Sign here:</h1>
       <div id="canvas_div" class="text-center w-[90vw] h-[50vh] mx-auto">
         <canvas id="canvas" class="fade-in-up bg-transparent w-[80%] h-[80%] border-b border-white touch-none block mx-auto"></canvas>
-        <div class="flex justify-center space-x-4 mt-4">
-          <button type="button" class="fade-in-up bg-black font-[Satoshi] text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="clearCanvas()">Clear</button>
-          <button type="button" id="submitDrawingBtn" class="fade-in-up bg-black font-[Satoshi] text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="submitDrawing()">Sign</button>
+        <div class="flex justify-center space-x-10 mt-10">
+          <button type="button" class="fade-in-up bg-black font-[Satoshi] text-[150%] text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="clearCanvas()">Clear</button>
+          <button type="button" id="submitDrawingBtn" class="fade-in-up bg-black font-[Satoshi] text-[150%] text-white border border-white rounded-md px-4 py-2 hover:bg-white hover:text-black transition" onclick="submitDrawing()">Sign</button>
         </div>
       </div>
     </div>
 
-    <div id="notForgottenScreen" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">Here, nobody is ever truly forgotten</h1>
+    <div id="notForgottenScreen" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">Here, nobody is ever truly forgotten</h1>
     </div>
 
-    <div id="emailNoticeScreen" class="hidden mt-[20vh]">
-        <h1 class="fade-in-up font-[Satoshi] text-[150%]">Something is waiting in your emails</h1>
-        <p class="fade-in-up font-[Satoshi] text-[100%]">Please check also your spam folder</p>
+    <div id="emailNoticeScreen" class="hidden mt-[30vh]">
+        <h1 class="fade-in-up font-[Satoshi] text-[200%]">Something is waiting in your emails</h1>
+        <p class="fade-in-up font-[Satoshi] text-[150%]">Please check also your spam folder</p>
     </div>
 
-    <div id="thankYouSection" class="hidden mt-[20vh]">
-      <h1 class="fade-in-up font-[Satoshi] text-[150%]">Tutta Notte Buia</h1>
+    <div id="thankYouSection" class="hidden mt-[30vh]">
+      <h1 class="fade-in-up font-[Satoshi] text-[200%]">Tutta Notte Buia</h1>
     </div>
 
     <video id="wakelockVideo" playsinline muted autoplay loop class="hidden">
