@@ -5,7 +5,7 @@
         let wakeLock = null;
 
         function initializePage() {
-            document.getElementById("queueMessage").style.display = "flex";
+            document.getElementById("queueMessage").style.display = "block";
             document.getElementById("queueMessage").classList.add("fade-in");
 
             // Attiva il fade-in manuale delle particelle
@@ -88,17 +88,14 @@
             const warning = document.getElementById("phoneWarningScreen");
             warning.style.display = "block";
             warning.classList.add("fade-in");
+        }
 
+        function proceedFromPhoneWarning() {    
+            document.getElementById("phoneWarningScreen").classList.add("fade-out");
             setTimeout(() => {
-                warning.classList.remove("fade-in"); // rimuovi l'ingresso
-                warning.classList.add("fade-out");
-
-                warning.addEventListener("animationend", function handleFadeOut() {
-                    warning.removeEventListener("animationend", handleFadeOut); // cleanup
-                    warning.style.display = "none";
-                    getUserInfo(); // chiamato solo dopo che l'animazione è davvero finita
-                });
-            }, 7000);
+                document.getElementById("phoneWarningScreen").style.display = "none";
+                getUserInfo();  // passa allo step successivo
+                }, 3000); // tempo coerente con la durata dell’animazione fade-out
         }
 
 
@@ -494,7 +491,7 @@
 
                 // Attendi 5s di buio prima del reindirizzamento
                 setTimeout(() => {
-                    window.location.href = "https://linktr.ee/maalex_reflurapid";
+                    window.location.href = "https://tutta-notte-buia.onrender.com/";
                 }, 5000);
 
             }, 15000); // dopo 15s di messaggio visibile
@@ -554,7 +551,6 @@
                     console.log("Messaggio inviato a Python: user_connected");
 
                     document.getElementById("queueMessage").style.display = "none";
-                    //document.getElementById("phoneWarningScreen").style.display = "block";
 
                     //  Avvia la transizione dopo 5 secondi
                     setTimeout(() => {
@@ -567,9 +563,9 @@
                     document.getElementById("queueMessage").style.display = "block";
                     document.getElementById("phoneWarningScreen").style.display = "none";
 
-                    //  Dopo 10 secondi, reindirizza
+                    //  Dopo 15 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
-                        window.location.href = "https://linktr.ee/maalex_reflurapid";
+                        window.location.href = "https://tutta-notte-buia.onrender.com/";
                     }, 15000);
                 }
                 
@@ -610,7 +606,7 @@
                 if (isPromotedClient) {
                     sendClearMessage();
                 }
-                window.location.href = "https://linktr.ee/maalex_reflurapid";
+                window.location.href = "https://tutta-notte-buia.onrender.com/";
             }, 180000); // 3 minuti = 180000 ms
         }
 
@@ -636,7 +632,7 @@
 
             hiddenTimeout = setTimeout(() => {
             console.log("60s passati in background → reindirizzamento forzato.");
-            window.location.href = "https://linktr.ee/maalex_reflurapid";
+            window.location.href = "https://tutta-notte-buia.onrender.com/";
             }, 60000);
         } else if (document.visibilityState === "visible") {
             console.log("Pagina visibile di nuovo. Timer annullato.");
