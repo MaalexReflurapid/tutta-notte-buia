@@ -94,6 +94,12 @@
             document.getElementById("phoneWarningScreen").classList.add("fade-out");
             setTimeout(() => {
                 document.getElementById("phoneWarningScreen").style.display = "none";
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({action: "user_connected"}));
+                    console.log("Messaggio inviato a Python: user_connected");
+                }
+                
                 getUserInfo();  // passa allo step successivo
                 }, 3000); // tempo coerente con la durata dell’animazione fade-out
         }
@@ -547,8 +553,10 @@
                         startFallbackVideo(); // per browser che non supportano wakeLock (es. iOS)
                     }
 
-                    ws.send(JSON.stringify({action: "user_connected"}));
-                    console.log("Messaggio inviato a Python: user_connected");
+                    // Precedentemente mandavamo user_connected appena un utente si connetteva al sito
+                    // e veniva promosso a connesso - E' stato spostato sul bottone "Continue" della schermata "phoneWarningScreen"
+                    // ws.send(JSON.stringify({action: "user_connected"}));
+                    // console.log("Messaggio inviato a Python: user_connected");
 
                     document.getElementById("queueMessage").style.display = "none";
 
@@ -565,7 +573,7 @@
 
                     //  Dopo 15 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
-                        window.location.href = "https://tutta-notte-buia.onrender.com/";
+                        window.location.href = "https://linktr.ee/maalex_reflurapid";
                     }, 15000);
                 }
                 
@@ -632,7 +640,7 @@
 
             hiddenTimeout = setTimeout(() => {
             console.log("60s passati in background → reindirizzamento forzato.");
-            window.location.href = "https://tutta-notte-buia.onrender.com/";
+            window.location.href = "https://linktr.ee/maalex_reflurapid";
             }, 60000);
         } else if (document.visibilityState === "visible") {
             console.log("Pagina visibile di nuovo. Timer annullato.");
