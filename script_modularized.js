@@ -573,7 +573,7 @@
 
                     //  Dopo 15 secondi, reindirizza
                     redirectTimerQueued = setTimeout(() => {
-                        window.location.href = "https://linktr.ee/maalex_reflurapid";
+                        window.location.href = "https://tutta-notte-buia.onrender.com/";
                     }, 15000);
                 }
                 
@@ -640,7 +640,7 @@
 
             hiddenTimeout = setTimeout(() => {
             console.log("60s passati in background → reindirizzamento forzato.");
-            window.location.href = "https://linktr.ee/maalex_reflurapid";
+            window.location.href = "https://tutta-notte-buia.onrender.com/";
             }, 60000);
         } else if (document.visibilityState === "visible") {
             console.log("Pagina visibile di nuovo. Timer annullato.");
